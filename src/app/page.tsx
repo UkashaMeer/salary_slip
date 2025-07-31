@@ -73,6 +73,7 @@ const generatePDF = async (responseMsg: ApiResponse) => {
   doc.text(
     "This is a system generated salary slip.",
     14,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (doc as any).lastAutoTable.finalY + 10
   );
 
