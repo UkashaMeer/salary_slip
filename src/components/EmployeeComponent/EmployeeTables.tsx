@@ -48,6 +48,7 @@ export type Employee = {
   id: string
   name: string
   email: string
+  salary: string
   phone: string
   cnic: string
   address: string
@@ -69,6 +70,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
   // Edit Employee State
   const [editName, setEditName] = useState("")
   const [editEmail, setEditEmail] = useState("")
+  const [editSalary, setEditSalary] = useState("")
   const [editPhone, setEditPhone] = useState("")
   const [editCnic, setEditCnic] = useState("")
   const [editAddress, setEditAddress] = useState("")
@@ -77,6 +79,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
     setSelectedUser(user)
     setEditName(user.name)
     setEditEmail(user.email)
+    setEditSalary(user.salary)
     setEditPhone(user.phone)
     setEditCnic(user.cnic)
     setEditAddress(user.address)
@@ -89,6 +92,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
     const payload = {
       name: editName,
       email: editEmail,
+      salary: editSalary,
       phone: editPhone,
       cnic: editCnic,
       address: editAddress
@@ -157,6 +161,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
     { accessorKey: "id", header: "ID", cell: ({ row }) => <div>{row.getValue("id")}</div> },
     { accessorKey: "name", header: "Name", cell: ({ row }) => <div>{row.getValue("name")}</div> },
     { accessorKey: "email", header: "Email", cell: ({ row }) => <div>{row.getValue("email")}</div> },
+    { accessorKey: "salary", header: "Salary", cell: ({ row }) => <div>{row.getValue("salary")}</div> },
     { accessorKey: "phone", header: "Phone", cell: ({ row }) => <div>{row.getValue("phone")}</div> },
     { accessorKey: "cnic", header: "CNIC", cell: ({ row }) => <div>{row.getValue("cnic")}</div> },
     { accessorKey: "address", header: "Address", cell: ({ row }) => <div>{row.getValue("address")}</div> },
@@ -232,6 +237,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
           <DialogTitle>Update Employee</DialogTitle>
             <Input type="text" placeholder="Enter Name" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editName} onChange={(e) => setEditName(e.target.value)} />
             <Input type="email" placeholder="Enter Email" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
+            <Input type="text" placeholder="Enter Salary" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editSalary} onChange={(e) => setEditSalary(e.target.value)} />
             <Input type="tel" placeholder="Enter Phone" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
             <Input type="text" placeholder="Enter CNIC" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editCnic} onChange={(e) => setEditCnic(e.target.value)} />
             <Input type="text" placeholder="Enter Address" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} />
@@ -249,6 +255,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
                 <ul>
                     <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Name: {selectedUser?.name}</li>
                     <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Email: {selectedUser?.email}</li>
+                    <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Salary: {selectedUser?.salary}</li>
                     <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Phone: {selectedUser?.phone}</li>
                     <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>CNIC: {selectedUser?.cnic}</li>
                     <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Address: {selectedUser?.address}</li>

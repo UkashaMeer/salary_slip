@@ -6,6 +6,7 @@ import autoTable from "jspdf-autotable";
 import { EmployeeNameSelect } from "@/components/EmployeeComponent/EmployeeNameSelect";
 
 interface FormData {
+  employee_id?: string;
   salary: string;
   absents: string;
   short_shift: string;
@@ -16,6 +17,7 @@ interface FormData {
 interface ApiResponse {
   message: string;
   data: {
+    employee_name: number;
     original_salary: number;
     salary_per_day: number;
     deduction_days: number;
@@ -61,6 +63,7 @@ const generatePDF = async (responseMsg: ApiResponse) => {
     startY: 40,
     head: [["Description", "Amount"]],
     body: [
+      ["Name", `${responseMsg.data.employee_name}`],
       ["Original Salary", `Rs ${responseMsg.data.original_salary.toLocaleString()}`],
       ["Salary Per Day", `Rs ${responseMsg.data.salary_per_day.toLocaleString()}`],
       ["Deduction Days", `${responseMsg.data.deduction_days}`],
@@ -113,7 +116,8 @@ export default function Home() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            salary: Number(formData.salary),
+            employee_id: formData.employee_id,
+            salary: Number(formData.salary), // yeh employee select hone par set ho chuka hoga
             absents: Number(formData.absents),
             short_shift: Number(formData.short_shift),
             late: Number(formData.late),
@@ -123,6 +127,7 @@ export default function Home() {
       );
 
       const data: ApiResponse = await res.json();
+      console.log(data)
       setResponseMsg(data);
     } catch (error) {
       console.error(error);
@@ -142,7 +147,16 @@ export default function Home() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-8 space-y-5 max-[768px]:p-2">
-          <EmployeeNameSelect />
+          <EmployeeNameSelect
+          
+             onSelectEmployee={(employee) => {
+              setFormData((prev) => ({
+                ...prev,
+                employee_id: employee.id, // id backend me bhejne ke liye
+                salary: employee.salary   // backend me post karne ke liye
+              }));
+            }}
+          />
           {(
             ["salary", "absents", "short_shift", "late", "half_day"] as const
           ).map((field) => (

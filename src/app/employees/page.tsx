@@ -11,12 +11,12 @@ import { Input } from "@/components/ui/input";
 import { EmployeeTables } from "@/components/EmployeeComponent/EmployeeTables";
 import { useEffect, useState } from "react";
 import { fetchEmployees } from "@/lib/api";
-import { toast } from "sonner";
 import { showToast } from "@/lib/showToast";
 
 export default function Page(){
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [salary, setSalary] = useState("");
     const [phone, setPhone] = useState("");
     const [cnic, setCnic] = useState("");
     const [address, setAddress] = useState("");
@@ -38,6 +38,7 @@ export default function Page(){
     const payload = {
         name,
         email,
+        salary,
         phone,
         cnic,
         address,
@@ -62,6 +63,7 @@ export default function Page(){
         // Optionally clear form
         setName("");
         setEmail("");
+        setSalary("");
         setPhone("");
         setCnic("");
         setAddress("");
@@ -102,6 +104,7 @@ export default function Page(){
                             <form onSubmit={handleCreateEmployee} className="flex flex-col gap-2">
                             <Input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Enter Name" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Enter Email" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
+                            <Input value={salary} onChange={(e) => setSalary(e.target.value)} type="text" placeholder="Enter Salary" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" placeholder="Enter Phone" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={cnic} onChange={(e) => setCnic(e.target.value)} type="text" placeholder="Enter CNIC" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={address} onChange={(e) => setAddress(e.target.value)} type="text" placeholder="Enter Address" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
