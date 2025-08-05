@@ -3,6 +3,7 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { EmployeeNameSelect } from "@/components/EmployeeComponent/EmployeeNameSelect";
 
 interface FormData {
   salary: string;
@@ -131,16 +132,17 @@ export default function Home() {
   };
 
   return (
-    <main className="w-full min-h-screen bg-[#141D38] flex justify-center items-center p-4">
-      <div className="bg-white w-full max-w-lg rounded-xl shadow-lg overflow-hidden">
+    <main className="w-full min-h-screen bg-[#141D38] flex justify-center items-center py-12 p-4 max-[768px]:p-4">
+      <div className="bg-white w-full max-w-lg rounded-xl shadow-lg overflow-hidden border-1 border-solid border-white">
         {/* Header with Logo */}
-        <div className="bg-[#141D38] flex flex-col items-center justify-center py-6 px-4">
+        <div className="bg-[#141D38] flex flex-col items-center justify-center py-6 px-4 max-[768px]:p-2">
           <img src="/logo.png" alt="Company Logo" className="w-[40%] h-16 object-contain" />
-          <h1 className="text-white text-2xl font-bold mt-3">Salary Slip Form</h1>
+          <h1 className="text-white text-2xl font-bold mt-3 max-[768px]:mb-3">Salary Slip Form</h1>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="p-8 space-y-5 max-[768px]:p-2">
+          <EmployeeNameSelect />
           {(
             ["salary", "absents", "short_shift", "late", "half_day"] as const
           ).map((field) => (
@@ -155,13 +157,13 @@ export default function Home() {
                 onChange={handleChange}
                 placeholder={`Enter ${field.replace("_", " ")}`}
                 required
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#141D38] focus:outline-none"
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none"
               />
             </div>
           ))}
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="pt-4 max-[768px]:!py-2 ">
             <button
               type="submit"
               disabled={loading}
@@ -174,8 +176,8 @@ export default function Home() {
 
         {/* API Response */}
         {responseMsg && (
-          <div className="bg-gray-50 p-6 border-t">
-            <p className="text-green-700 font-medium mb-4">{responseMsg.message}</p>
+          <div className="bg-gray-50 p-6 border-t max-[768px]:p-2">
+            <p className="text-[#141D38]-700 font-medium mb-4">{responseMsg.message}</p>
             <div className="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
               <table className="w-full text-sm text-gray-700">
                 <tbody>
@@ -198,8 +200,8 @@ export default function Home() {
                     </td>
                   </tr>
                   <tr className="bg-green-50">
-                    <td className="px-4 py-2 font-bold text-green-700">Final Salary</td>
-                    <td className="px-4 py-2 text-right font-bold text-green-700">
+                    <td className="px-4 py-2 font-bold text-[#141D38]">Final Salary</td>
+                    <td className="px-4 py-2 text-right font-bold text-[#141D38]">
                       Rs {responseMsg.data.final_salary.toLocaleString()}
                     </td>
                   </tr>
@@ -210,7 +212,7 @@ export default function Home() {
             {/* Download PDF Button */}
             <button
               onClick={() => generatePDF(responseMsg)}
-              className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg shadow-md"
+              className="mt-4 w-full bg-[#141D38] text-white py-2 px-4 rounded-lg shadow-md max-[768px]:mb-2"
             >
               Download Salary Slip PDF
             </button>
