@@ -81,7 +81,7 @@ export default function Page(){
 
     return(
         <main className="w-full min-h-screen flex items-center justify-center bg-[#141D38] py-8 px-4">
-            <section className="max-w-[1140px] w-full bg-white h-full p-6 rounded-lg">
+            <section className="max-w-[1140px] w-full bg-white h-full p-6 rounded-lg mx-auto">
                 
                 {/* Title */}
                 <h1 className="text-2xl font-semibold"><span className="text-[#141D38]">Invenzee</span> Employee Management</h1>
@@ -101,7 +101,7 @@ export default function Page(){
                         </DialogTrigger>
                         <DialogContent>
                             <DialogTitle>Add Employee Details</DialogTitle>
-                            <form onSubmit={handleCreateEmployee} className="flex flex-col gap-2">
+                            <form onSubmit={handleCreateEmployee} className="flex flex-col gap-2 w-full">
                             <Input value={name} onChange={(e) => setName(e.target.value)} type="text" placeholder="Enter Name" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Enter Email" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={salary} onChange={(e) => setSalary(e.target.value)} type="text" placeholder="Enter Salary" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />

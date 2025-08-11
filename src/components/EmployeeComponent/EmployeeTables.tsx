@@ -229,7 +229,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
   })
 
   return (
-    <div className="w-full">
+    <div className="w-full max-w-[1140px]">
 
     {/* Edit Dialog */}
       <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
@@ -288,7 +288,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
             </DialogContent>
         </Dialog>
 
-      <div className="overflow-hidden rounded-md border mt-4">
+      <div className="overflow-hidden rounded-md border mt-4 w-full mx-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
