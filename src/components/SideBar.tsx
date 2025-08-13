@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { Home, FileUser, LogOut } from "lucide-react"
 
 import {
   Sidebar,
@@ -12,32 +12,23 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import Link from "next/link"
 
 const items = [
   {
     title: "Home",
-    url: "#",
+    url: "/dashboard",
     icon: Home,
   },
   {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
+    title: "Leaves",
+    url: "/leaves",
+    icon: FileUser,
   },
   {
     title: "Logout",
     url: "/auth/login",
-    icon: Settings,
+    icon: LogOut,
   },
 ]
 
@@ -61,19 +52,19 @@ export function SideBar() {
                 item.title === 'Logout' ? (
                 <SidebarMenuItem key={item.title} onClick={resetLocalStorage}>
                     <SidebarMenuButton asChild>
-                        <a href={item.url}>
+                        <Link href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
-                        </a>
+                        </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>
                 ) : (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 )

@@ -9,6 +9,23 @@ interface AttendanceData {
   employee_name: string;
 }
 
+type BreakTime = {
+  break_in: string;
+  break_out: string;
+};
+
+type AttendanceRow = {
+  employee_name: string;
+  date: string;
+  time_in: string;
+  time_out: string;
+  total_hours: string;
+  late: boolean;
+  breaks: BreakTime[];
+  total_break_time: string;
+};
+
+
 export default function Dashboard() {
   const SHIFT_SECONDS = 9 * 60 * 60;
   const BREAK_LIMIT_SECONDS = 60 * 60;
@@ -25,7 +42,55 @@ export default function Dashboard() {
 
   const [attendanceData, setAttendanceData] = useState([])
 
-const checkStatus = async () => {
+
+  const downloadCsv = (attendanceData: AttendanceRow[]) => {
+    const headers = [
+      "Index",
+      "Employee",
+      "Date",
+      "Time In",
+      "Time Out",
+      "Total Hours",
+      "Break In & Break Out",
+      "Break Time",
+      "Late"
+    ];
+
+    const rows = attendanceData.map((row, index) => {
+      const breakDetails = row.breaks
+        .map(b => `${b.break_in} / ${b.break_out}`)
+        .join(" | ");
+
+      return [
+        index + 1,
+        row.employee_name,
+        row.date,
+        row.time_in,
+        row.time_out,
+        row.total_hours,
+        breakDetails,
+        row.total_break_time,
+        row.late ? "Yes" : "No"
+      ];
+    });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers, ...rows]
+        .map(e => e.map(String).map(v => `"${v}"`).join(","))
+        .join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "attendance.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
+  const checkStatus = async () => {
     try {
       const res = await fetch(
         "https://ukashacoder.pythonanywhere.com/api/attendance/status/",
@@ -62,7 +127,7 @@ const checkStatus = async () => {
               // add ongoing break duration to total break seconds
               setTotalBreakSeconds(
                 (data.total_break_seconds || 0) +
-                  Math.floor((Date.now() - breakStart) / 1000)
+                Math.floor((Date.now() - breakStart) / 1000)
               );
             } else {
               setOnBreak(false);
@@ -87,11 +152,11 @@ const checkStatus = async () => {
     }
   };
 
-// useEffect(() => {
-  
+  // useEffect(() => {
 
-//   checkStatus();
-// }, []);
+
+  //   checkStatus();
+  // }, []);
 
   useEffect(() => {
     if (!clockedIn || !startTime) return;
@@ -111,56 +176,56 @@ const checkStatus = async () => {
     return () => clearInterval(interval);
   }, [onBreak, breakStartTime]);
 
-const handleCheckIn = async () => {
-  try {
-    const res = await fetch(
-      "https://ukashacoder.pythonanywhere.com/api/attendance/time-in/",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
+  const handleCheckIn = async () => {
+    try {
+      const res = await fetch(
+        "https://ukashacoder.pythonanywhere.com/api/attendance/time-in/",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const now = Date.now();
+
+        // ✅ Save check-in status in localStorage
+        localStorage.setItem("checkedIn", "true");
+        localStorage.setItem("checkInTime", now.toString());
+
+        setClockedIn(true);
+        setStartTime(now);
+
+        console.log("✅ Clocked in at", new Date(now).toLocaleString());
+      } else {
+        alert(data.error || "Error in time in");
       }
-    );
-
-    const data = await res.json();
-
-    if (res.ok) {
-      const now = Date.now();
-      
-      // ✅ Save check-in status in localStorage
-      localStorage.setItem("checkedIn", "true");
-      localStorage.setItem("checkInTime", now.toString());
-
-      setClockedIn(true);
-      setStartTime(now);
-
-      console.log("✅ Clocked in at", new Date(now).toLocaleString());
-    } else {
-      alert(data.error || "Error in time in");
+    } catch (error) {
+      console.error("Check-in failed:", error);
+      alert("Failed to check in");
     }
-  } catch (error) {
-    console.error("Check-in failed:", error);
-    alert("Failed to check in");
-  }
-};
+  };
 
 
-useEffect(() => {
-  const alreadyCheckedIn = localStorage.getItem("checkedIn") === "true";
-  
-  if (alreadyCheckedIn) {
-    const savedTime = localStorage.getItem("checkInTime");
-    if (savedTime) {
-      setClockedIn(true);
-      setStartTime(Number(savedTime));
-      setElapsedSeconds(Math.floor((Date.now() - Number(savedTime)) / 1000));
+  useEffect(() => {
+    const alreadyCheckedIn = localStorage.getItem("checkedIn") === "true";
+
+    if (alreadyCheckedIn) {
+      const savedTime = localStorage.getItem("checkInTime");
+      if (savedTime) {
+        setClockedIn(true);
+        setStartTime(Number(savedTime));
+        setElapsedSeconds(Math.floor((Date.now() - Number(savedTime)) / 1000));
+      }
+      return; // ✅ Skip API call if already checked in
     }
-    return; // ✅ Skip API call if already checked in
-  }
 
-  checkStatus(); // only if not checked in
-}, []);
+    checkStatus(); // only if not checked in
+  }, []);
 
 
   const handleCheckOut = async () => {
@@ -176,7 +241,7 @@ useEffect(() => {
       );
       const data = await res.json();
       if (res.ok) {
-         // ✅ Remove localStorage check-in data
+        // ✅ Remove localStorage check-in data
         localStorage.removeItem("checkedIn");
         localStorage.removeItem("checkInTime");
         // alert("Clocked out!");
@@ -195,74 +260,74 @@ useEffect(() => {
     }
   };
 
-const handleBreakIn = async () => {
-  try {
-    const res = await fetch(
-      "https://ukashacoder.pythonanywhere.com/api/attendance/break-in/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
-        body: JSON.stringify({ employee_id: localStorage.getItem("employee_id") })
+  const handleBreakIn = async () => {
+    try {
+      const res = await fetch(
+        "https://ukashacoder.pythonanywhere.com/api/attendance/break-in/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+          body: JSON.stringify({ employee_id: localStorage.getItem("employee_id") })
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const now = Date.now();
+        setOnBreak(true);
+        setBreakStartTime(now);
+
+        // ✅ Save break info in localStorage
+        localStorage.setItem("onBreak", "true");
+        localStorage.setItem("breakStartTime", now.toString());
+
+        console.log("☕ Break In at", new Date(now).toLocaleString());
+      } else {
+        alert(data.message || data.error || "Error in break in");
       }
-    );
-
-    const data = await res.json();
-
-    if (res.ok) {
-      const now = Date.now();
-      setOnBreak(true);
-      setBreakStartTime(now);
-
-      // ✅ Save break info in localStorage
-      localStorage.setItem("onBreak", "true");
-      localStorage.setItem("breakStartTime", now.toString());
-
-      console.log("☕ Break In at", new Date(now).toLocaleString());
-    } else {
-      alert(data.message || data.error || "Error in break in");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to mark break in");
     }
-  } catch (error) {
-    console.error(error);
-    alert("Failed to mark break in");
-  }
-};
+  };
 
-const handleBreakOut = async () => {
-  try {
-    const res = await fetch(
-      "https://ukashacoder.pythonanywhere.com/api/attendance/break-out/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
-        body: JSON.stringify({ employee_id: localStorage.getItem("employee_id") })
+  const handleBreakOut = async () => {
+    try {
+      const res = await fetch(
+        "https://ukashacoder.pythonanywhere.com/api/attendance/break-out/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+          body: JSON.stringify({ employee_id: localStorage.getItem("employee_id") })
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setOnBreak(false);
+        setBreakStartTime(null);
+
+        // ✅ Remove break info from localStorage
+        localStorage.removeItem("onBreak");
+        localStorage.removeItem("breakStartTime");
+
+        console.log("☕ Break Out");
+      } else {
+        alert(data.message || data.error || "Error in break out");
       }
-    );
-
-    const data = await res.json();
-
-    if (res.ok) {
-      setOnBreak(false);
-      setBreakStartTime(null);
-
-      // ✅ Remove break info from localStorage
-      localStorage.removeItem("onBreak");
-      localStorage.removeItem("breakStartTime");
-
-      console.log("☕ Break Out");
-    } else {
-      alert(data.message || data.error || "Error in break out");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to mark break out");
     }
-  } catch (error) {
-    console.error(error);
-    alert("Failed to mark break out");
-  }
-};
+  };
 
 
   useEffect(() => {
@@ -289,16 +354,16 @@ const handleBreakOut = async () => {
     fetchAttendanceData()
   }, [isCheckOut])
 
-useEffect(() => {
-  const onBreakStored = localStorage.getItem("onBreak") === "true";
-  if (onBreakStored) {
-    const storedBreakStart = localStorage.getItem("breakStartTime");
-    if (storedBreakStart) {
-      setOnBreak(true);
-      setBreakStartTime(Number(storedBreakStart));
+  useEffect(() => {
+    const onBreakStored = localStorage.getItem("onBreak") === "true";
+    if (onBreakStored) {
+      const storedBreakStart = localStorage.getItem("breakStartTime");
+      if (storedBreakStart) {
+        setOnBreak(true);
+        setBreakStartTime(Number(storedBreakStart));
+      }
     }
-  }
-}, []);
+  }, []);
 
 
   const formatTime = (seconds: number) => {
@@ -313,20 +378,20 @@ useEffect(() => {
 
   return (
     <main className="w-full h-full flex flex-col gap-4 items-center justify-start bg-[#141D38] py-8 px-4">
-        <ClockStatusCard
-          elapsedSeconds={elapsedSeconds}
-          totalBreakSeconds={totalBreakSeconds}
-          shiftSeconds={SHIFT_SECONDS}
-          breakLimitSeconds={BREAK_LIMIT_SECONDS}
-          formatTime={formatTime}
-        />
+      <ClockStatusCard
+        elapsedSeconds={elapsedSeconds}
+        totalBreakSeconds={totalBreakSeconds}
+        shiftSeconds={SHIFT_SECONDS}
+        breakLimitSeconds={BREAK_LIMIT_SECONDS}
+        formatTime={formatTime}
+      />
       <section className="flex items-center justify-between max-w-[1140px] w-full text-white mt-40">
 
         <div>
-          {attendanceData.map((item: AttendanceData, index: number) => 
-          index === 0 && (
-            <span key={index}>Welcome {item.employee_name}</span>
-          ))}
+          {attendanceData.map((item: AttendanceData, index: number) =>
+            index === 0 && (
+              <span key={index}>Welcome {item.employee_name}</span>
+            ))}
         </div>
 
         <div className="flex">
@@ -352,6 +417,7 @@ useEffect(() => {
       </section>
       <section className="max-w-[1140px] w-full bg-white h-full p-6 rounded-lg">
         <AttendanceTable attendanceData={attendanceData} />
+        <button className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light" onClick={() => downloadCsv(attendanceData)}>Download Sheet</button>
       </section>
     </main>
   );
