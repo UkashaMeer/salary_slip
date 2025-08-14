@@ -36,10 +36,17 @@ export default function Dashboard() {
 
   const [onBreak, setOnBreak] = useState(false);
   const [breakStartTime, setBreakStartTime] = useState<number | null>(null);
-  const [totalBreakSeconds, setTotalBreakSeconds] = useState(() => {
+  const [totalBreakSeconds, setTotalBreakSeconds] = useState(0);
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
     const saved = localStorage.getItem("totalBreakSeconds");
-    return saved ? parseInt(saved, 10) : 0;
-  });
+    if (saved) {
+      setTotalBreakSeconds(parseInt(saved, 10));
+    }
+  }
+}, []);
+
 
   const [isCheckOut, setIsCheckOut] = useState(false)
 
@@ -223,7 +230,6 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-  if (typeof window !== "undefined") {
     const savedTotalBreak = localStorage.getItem("totalBreakSeconds");
     const savedOnBreak = localStorage.getItem("onBreak") === "true";
     const savedBreakStart = localStorage.getItem("breakStartTime");
@@ -244,8 +250,7 @@ export default function Dashboard() {
       setOnBreak(true);
       setBreakStartTime(Number(savedBreakStart));
     }
-  }
-}, []);
+  }, []);
 
 
   const handleCheckOut = async () => {
