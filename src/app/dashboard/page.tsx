@@ -90,6 +90,19 @@ export default function Dashboard() {
   };
 
 
+ useEffect(() => {
+  // Har 30 seconds me status check kare
+  const interval = setInterval(() => {
+    checkStatus();
+  }, 30000);
+
+  // Pehli dafa mount pe bhi check kare
+  checkStatus();
+
+  return () => clearInterval(interval);
+}, []);
+
+// ✅ Auto-checkout logic
 const checkStatus = async () => {
   try {
     const res = await fetch(
@@ -103,44 +116,24 @@ const checkStatus = async () => {
     const data = await res.json();
 
     if (res.ok) {
-      console.log(data);
       switch (data.status) {
         case "checked_in":
           setClockedIn(true);
           setIsCheckOut(false);
 
-          // Time In → local timestamp
           const utcDate = new Date(data.time_in);
           const localTime =
             utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000;
           setStartTime(localTime);
 
-          // ✅ Work timer resume from backend
           const elapsed = Math.floor((Date.now() - localTime) / 1000);
           setElapsedSeconds(elapsed);
 
-          // ✅ Break info from backend
-          setTotalBreakSeconds(data.total_break_seconds || 0);
-
-          if (data.on_break) {
-            setOnBreak(true);
-            const breakStart = new Date(data.break_in).getTime();
-            setBreakStartTime(breakStart);
-            // add ongoing break duration to total break seconds
-            setTotalBreakSeconds(
-              (data.total_break_seconds || 0) +
-                Math.floor((Date.now() - breakStart) / 1000)
-            );
-          } else {
-            setOnBreak(false);
-            setBreakStartTime(null);
+          // Auto-checkout trigger (5 min = 300 seconds)
+          if (elapsed >= 36000 && !isCheckOut) {
+            console.log("⏳ Auto-checkout triggered after 10 minutes");
+            await handleCheckOut();
           }
-
-          // 🔹 10-hour condition
-          if (elapsed >= 10 * 60 * 60 && !isCheckOut) {
-            setIsCheckOut(true);
-          }
-
           break;
 
         case "checked_out":
@@ -148,16 +141,16 @@ const checkStatus = async () => {
           setIsCheckOut(true);
           break;
 
-        case "not_checked_in":
+        default:
           setClockedIn(false);
           setIsCheckOut(false);
-          break;
       }
     }
   } catch (err) {
     console.log("Error checking status", err);
   }
 };
+
 
 
   // useEffect(() => {

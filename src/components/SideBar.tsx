@@ -35,8 +35,7 @@ const items = [
 export function SideBar() {
 
     const resetLocalStorage = () => {
-        localStorage.removeItem('access')
-        localStorage.removeItem('employee_id')
+        localStorage.clear()
     }
 
   return (
