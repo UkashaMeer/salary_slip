@@ -23,10 +23,11 @@ interface Props {
 const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
-    return date.toLocaleDateString("en-GB", {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
     });
   };
 
@@ -68,26 +69,25 @@ const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
               <td className="p-3">{item.time_out ? formatTime(item.time_out) : "-"}</td>
               <td className="p-3">{item.total_hours || "-"}</td>
               <td className="p-3">
-                  {item.breaks && item.breaks.length > 0 ? (
-                    <div className="space-y-1">
-                      {item.breaks.map((br, i) => (
-                        <div key={i}>
-                          {i + 1}st Break:{" "}
-                          {br.break_in ? formatTime(br.break_in) : "-"} -{" "}
-                          {br.break_out ? formatTime(br.break_out) : "-"}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    "-"
-                  )}
+                {item.breaks && item.breaks.length > 0 ? (
+                  <div className="space-y-1">
+                    {item.breaks.map((br, i) => (
+                      <div key={i}>
+                        {i + 1}st Break:{" "}
+                        {br.break_in ? formatTime(br.break_in) : "-"} -{" "}
+                        {br.break_out ? formatTime(br.break_out) : "-"}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  "-"
+                )}
               </td>
               <td className="p-3">{item.total_break_time || "-"}</td>
               <td className="p-3">
                 <span
-                  className={`px-2 py-1 rounded text-white text-xs ${
-                    item.late ? "bg-red-500" : "bg-green-500"
-                  }`}
+                  className={`px-2 py-1 rounded text-white text-xs ${item.late ? "bg-red-500" : "bg-green-500"
+                    }`}
                 >
                   {item.late ? "Yes" : "No"}
                 </span>

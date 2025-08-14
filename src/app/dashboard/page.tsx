@@ -91,18 +91,15 @@ export default function Dashboard() {
 
 
  useEffect(() => {
-  // Har 30 seconds me status check kare
   const interval = setInterval(() => {
     checkStatus();
   }, 30000);
 
-  // Pehli dafa mount pe bhi check kare
   checkStatus();
-
   return () => clearInterval(interval);
 }, []);
 
-// ✅ Auto-checkout logic
+
 const checkStatus = async () => {
   try {
     const res = await fetch(
@@ -129,7 +126,6 @@ const checkStatus = async () => {
           const elapsed = Math.floor((Date.now() - localTime) / 1000);
           setElapsedSeconds(elapsed);
 
-          // Auto-checkout trigger (5 min = 300 seconds)
           if (elapsed >= 36000 && !isCheckOut) {
             console.log("⏳ Auto-checkout triggered after 10 minutes");
             await handleCheckOut();
@@ -150,14 +146,6 @@ const checkStatus = async () => {
     console.log("Error checking status", err);
   }
 };
-
-
-
-  // useEffect(() => {
-
-
-  //   checkStatus();
-  // }, []);
 
   useEffect(() => {
     if (!clockedIn || !startTime) return;
@@ -194,7 +182,6 @@ const checkStatus = async () => {
       if (res.ok) {
         const now = Date.now();
 
-        // ✅ Save check-in status in localStorage
         localStorage.setItem("checkedIn", "true");
         localStorage.setItem("checkInTime", now.toString());
 
@@ -222,10 +209,10 @@ const checkStatus = async () => {
         setStartTime(Number(savedTime));
         setElapsedSeconds(Math.floor((Date.now() - Number(savedTime)) / 1000));
       }
-      return; // ✅ Skip API call if already checked in
+      return;
     }
 
-    checkStatus(); // only if not checked in
+    checkStatus();
   }, []);
 
 
@@ -242,10 +229,8 @@ const checkStatus = async () => {
       );
       const data = await res.json();
       if (res.ok) {
-        // ✅ Remove localStorage check-in data
         localStorage.removeItem("checkedIn");
         localStorage.removeItem("checkInTime");
-        // alert("Clocked out!");
         setClockedIn(false);
         setStartTime(null);
         setElapsedSeconds(0);
@@ -282,7 +267,6 @@ const checkStatus = async () => {
         setOnBreak(true);
         setBreakStartTime(now);
 
-        // ✅ Save break info in localStorage
         localStorage.setItem("onBreak", "true");
         localStorage.setItem("breakStartTime", now.toString());
 
@@ -316,7 +300,6 @@ const checkStatus = async () => {
         setOnBreak(false);
         setBreakStartTime(null);
 
-        // ✅ Remove break info from localStorage
         localStorage.removeItem("onBreak");
         localStorage.removeItem("breakStartTime");
 
