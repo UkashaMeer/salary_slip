@@ -23,20 +23,20 @@ interface Props {
 const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
   const formatDate = (isoString: string) => {
     const date = new Date(isoString);
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
+    return date.toLocaleDateString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
     });
   };
 
   const formatTime = (isoString: string) => {
     const date = new Date(isoString);
-    return date.toLocaleTimeString("en-GB", {
+    return date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
+      hour12: true, // ✅ 12-hour format with AM/PM
     });
   };
 
