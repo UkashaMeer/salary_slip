@@ -223,6 +223,7 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
+  if (typeof window !== "undefined") {
     const savedTotalBreak = localStorage.getItem("totalBreakSeconds");
     const savedOnBreak = localStorage.getItem("onBreak") === "true";
     const savedBreakStart = localStorage.getItem("breakStartTime");
@@ -243,7 +244,8 @@ export default function Dashboard() {
       setOnBreak(true);
       setBreakStartTime(Number(savedBreakStart));
     }
-  }, []);
+  }
+}, []);
 
 
   const handleCheckOut = async () => {
