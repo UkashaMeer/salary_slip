@@ -90,67 +90,75 @@ export default function Dashboard() {
   };
 
 
-  const checkStatus = async () => {
-    try {
-      const res = await fetch(
-        "https://ukashacoder.pythonanywhere.com/api/attendance/status/",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access")}`,
-          },
-        }
-      );
-      const data = await res.json();
-      if (res.ok) {
-        console.log(data)
-        switch (data.status) {
-          case "checked_in":
-            setClockedIn(true);
-            setIsCheckOut(false);
-
-            // Time In → local timestamp
-            const utcDate = new Date(data.time_in);
-            const localTime =
-              utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000;
-            setStartTime(localTime);
-
-            // ✅ Work timer resume from backend
-            setElapsedSeconds(Math.floor((Date.now() - localTime) / 1000));
-
-            // ✅ Break info from backend
-            setTotalBreakSeconds(data.total_break_seconds || 0);
-
-            if (data.on_break) {
-              setOnBreak(true);
-              const breakStart = new Date(data.break_in).getTime();
-              setBreakStartTime(breakStart);
-              // add ongoing break duration to total break seconds
-              setTotalBreakSeconds(
-                (data.total_break_seconds || 0) +
-                Math.floor((Date.now() - breakStart) / 1000)
-              );
-            } else {
-              setOnBreak(false);
-              setBreakStartTime(null);
-            }
-
-            break;
-
-          case "checked_out":
-            setClockedIn(false);
-            setIsCheckOut(true);
-            break;
-
-          case "not_checked_in":
-            setClockedIn(false);
-            setIsCheckOut(false);
-            break;
-        }
+const checkStatus = async () => {
+  try {
+    const res = await fetch(
+      "https://ukashacoder.pythonanywhere.com/api/attendance/status/",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access")}`,
+        },
       }
-    } catch (err) {
-      console.log("Error checking status", err);
+    );
+    const data = await res.json();
+
+    if (res.ok) {
+      console.log(data);
+      switch (data.status) {
+        case "checked_in":
+          setClockedIn(true);
+          setIsCheckOut(false);
+
+          // Time In → local timestamp
+          const utcDate = new Date(data.time_in);
+          const localTime =
+            utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000;
+          setStartTime(localTime);
+
+          // ✅ Work timer resume from backend
+          const elapsed = Math.floor((Date.now() - localTime) / 1000);
+          setElapsedSeconds(elapsed);
+
+          // ✅ Break info from backend
+          setTotalBreakSeconds(data.total_break_seconds || 0);
+
+          if (data.on_break) {
+            setOnBreak(true);
+            const breakStart = new Date(data.break_in).getTime();
+            setBreakStartTime(breakStart);
+            // add ongoing break duration to total break seconds
+            setTotalBreakSeconds(
+              (data.total_break_seconds || 0) +
+                Math.floor((Date.now() - breakStart) / 1000)
+            );
+          } else {
+            setOnBreak(false);
+            setBreakStartTime(null);
+          }
+
+          // 🔹 10-hour condition
+          if (elapsed >= 10 * 60 * 60 && !isCheckOut) {
+            setIsCheckOut(true);
+          }
+
+          break;
+
+        case "checked_out":
+          setClockedIn(false);
+          setIsCheckOut(true);
+          break;
+
+        case "not_checked_in":
+          setClockedIn(false);
+          setIsCheckOut(false);
+          break;
+      }
     }
-  };
+  } catch (err) {
+    console.log("Error checking status", err);
+  }
+};
+
 
   // useEffect(() => {
 
