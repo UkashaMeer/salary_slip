@@ -36,7 +36,10 @@ export default function Dashboard() {
 
   const [onBreak, setOnBreak] = useState(false);
   const [breakStartTime, setBreakStartTime] = useState<number | null>(null);
-  const [totalBreakSeconds, setTotalBreakSeconds] = useState(0);
+  const [totalBreakSeconds, setTotalBreakSeconds] = useState(() => {
+    const saved = localStorage.getItem("totalBreakSeconds");
+    return saved ? parseInt(saved, 10) : 0;
+  });
 
   const [isCheckOut, setIsCheckOut] = useState(false)
 
@@ -90,62 +93,66 @@ export default function Dashboard() {
   };
 
 
- useEffect(() => {
-  const interval = setInterval(() => {
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkStatus();
+    }, 30000);
+
     checkStatus();
-  }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
-  checkStatus();
-  return () => clearInterval(interval);
-}, []);
+  useEffect(() => {
+    localStorage.setItem("totalBreakSeconds", totalBreakSeconds.toString());
+  }, [totalBreakSeconds]);
 
 
-const checkStatus = async () => {
-  try {
-    const res = await fetch(
-      "https://ukashacoder.pythonanywhere.com/api/attendance/status/",
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access")}`,
-        },
+  const checkStatus = async () => {
+    try {
+      const res = await fetch(
+        "https://ukashacoder.pythonanywhere.com/api/attendance/status/",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access")}`,
+          },
+        }
+      );
+      const data = await res.json();
+
+      if (res.ok) {
+        switch (data.status) {
+          case "checked_in":
+            setClockedIn(true);
+            setIsCheckOut(false);
+
+            const utcDate = new Date(data.time_in);
+            const localTime =
+              utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000;
+            setStartTime(localTime);
+
+            const elapsed = Math.floor((Date.now() - localTime) / 1000);
+            setElapsedSeconds(elapsed);
+
+            if (elapsed >= 36000 && !isCheckOut) {
+              console.log("⏳ Auto-checkout triggered after 10 minutes");
+              await handleCheckOut();
+            }
+            break;
+
+          case "checked_out":
+            setClockedIn(false);
+            setIsCheckOut(true);
+            break;
+
+          default:
+            setClockedIn(false);
+            setIsCheckOut(false);
+        }
       }
-    );
-    const data = await res.json();
-
-    if (res.ok) {
-      switch (data.status) {
-        case "checked_in":
-          setClockedIn(true);
-          setIsCheckOut(false);
-
-          const utcDate = new Date(data.time_in);
-          const localTime =
-            utcDate.getTime() - utcDate.getTimezoneOffset() * 60 * 1000;
-          setStartTime(localTime);
-
-          const elapsed = Math.floor((Date.now() - localTime) / 1000);
-          setElapsedSeconds(elapsed);
-
-          if (elapsed >= 36000 && !isCheckOut) {
-            console.log("⏳ Auto-checkout triggered after 10 minutes");
-            await handleCheckOut();
-          }
-          break;
-
-        case "checked_out":
-          setClockedIn(false);
-          setIsCheckOut(true);
-          break;
-
-        default:
-          setClockedIn(false);
-          setIsCheckOut(false);
-      }
+    } catch (err) {
+      console.log("Error checking status", err);
     }
-  } catch (err) {
-    console.log("Error checking status", err);
-  }
-};
+  };
 
   useEffect(() => {
     if (!clockedIn || !startTime) return;
@@ -213,6 +220,29 @@ const checkStatus = async () => {
     }
 
     checkStatus();
+  }, []);
+
+  useEffect(() => {
+    const savedTotalBreak = localStorage.getItem("totalBreakSeconds");
+    const savedOnBreak = localStorage.getItem("onBreak") === "true";
+    const savedBreakStart = localStorage.getItem("breakStartTime");
+
+    if (savedTotalBreak) {
+      let total = parseInt(savedTotalBreak, 10);
+
+      if (savedOnBreak && savedBreakStart) {
+        const now = Date.now();
+        const diff = Math.floor((now - Number(savedBreakStart)) / 1000);
+        total += diff;
+      }
+
+      setTotalBreakSeconds(total);
+    }
+
+    if (savedOnBreak && savedBreakStart) {
+      setOnBreak(true);
+      setBreakStartTime(Number(savedBreakStart));
+    }
   }, []);
 
 
@@ -299,11 +329,9 @@ const checkStatus = async () => {
       if (res.ok) {
         setOnBreak(false);
         setBreakStartTime(null);
-
         localStorage.removeItem("onBreak");
         localStorage.removeItem("breakStartTime");
-
-        console.log("☕ Break Out");
+        localStorage.setItem("totalBreakSeconds", totalBreakSeconds.toString()); // save on break end
       } else {
         alert(data.message || data.error || "Error in break out");
       }
@@ -312,6 +340,7 @@ const checkStatus = async () => {
       alert("Failed to mark break out");
     }
   };
+
 
 
   useEffect(() => {
@@ -324,19 +353,42 @@ const checkStatus = async () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("access")}`,
             },
-
           }
         )
-        const data = await res.json()
-        setAttendanceData(data)
-        console.log(data)
-      } catch (err) {
-        console.log(err)
-      }
-    }
+        const data = await res.json();
+        setAttendanceData(data);
 
-    fetchAttendanceData()
-  }, [isCheckOut])
+        if (data.length > 0) {
+          const todayRecord = data[0];
+
+          const [h, m, s] = todayRecord.total_break_time.split(":").map(Number);
+          let totalSeconds = h * 3600 + m * 60 + s;
+
+          if (todayRecord.breaks.length > 0) {
+            const lastBreak = todayRecord.breaks[todayRecord.breaks.length - 1];
+            if (lastBreak.break_out === null) {
+              const breakStart = new Date(lastBreak.break_in).getTime();
+              const now = Date.now();
+              totalSeconds += Math.floor((now - breakStart) / 1000);
+
+              setOnBreak(true);
+              setBreakStartTime(breakStart);
+              localStorage.setItem("onBreak", "true");
+              localStorage.setItem("breakStartTime", breakStart.toString());
+            }
+          }
+
+          setTotalBreakSeconds(totalSeconds);
+          localStorage.setItem("totalBreakSeconds", totalSeconds.toString()); // persist after fetch
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchAttendanceData();
+  }, [isCheckOut]);
+
 
   useEffect(() => {
     const onBreakStored = localStorage.getItem("onBreak") === "true";
