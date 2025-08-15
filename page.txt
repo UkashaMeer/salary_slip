@@ -21,6 +21,8 @@ type AttendanceRow = {
   time_out: string;
   total_hours: string;
   late: boolean;
+  halfDay: boolean;
+  shortShift: boolean
   breaks: BreakTime[];
   total_break_time: string;
 };
@@ -63,7 +65,9 @@ export default function Dashboard() {
       "Total Hours",
       "Break In & Break Out",
       "Break Time",
-      "Late"
+      "Late",
+      "Short Shift",
+      "Half Day"
     ];
 
     const rows = attendanceData.map((row, index) => {
@@ -80,7 +84,9 @@ export default function Dashboard() {
         row.total_hours,
         breakDetails,
         row.total_break_time,
-        row.late ? "Yes" : "No"
+        row.late ? "Yes" : "No",
+        row.shortShift ? "Yes" : "No",
+        row.halfDay ? "Yes" : "No",
       ];
     });
 
@@ -100,18 +106,18 @@ export default function Dashboard() {
   };
 
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     checkStatus();
-  //   }, 30000);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkStatus();
+    }, 30000);
 
-  //   checkStatus();
-  //   return () => clearInterval(interval);
-  // }, []);
+    checkStatus();
+    return () => clearInterval(interval);
+  }, []);
 
-  // useEffect(() => {
-  //   localStorage.setItem("totalBreakSeconds", totalBreakSeconds.toString());
-  // }, [totalBreakSeconds]);
+  useEffect(() => {
+    localStorage.setItem("totalBreakSeconds", totalBreakSeconds.toString());
+  }, [totalBreakSeconds]);
 
 
   const checkStatus = async () => {
@@ -171,13 +177,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     let interval: any;
-    if (onBreak && breakStartTime) {
+    if (onBreak && breakStartTime && !isCheckOut) {
       interval = setInterval(() => {
         setTotalBreakSeconds((prev) => prev + 1);
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [onBreak, breakStartTime]);
+  }, [onBreak, breakStartTime, isCheckOut]);
 
   const handleCheckIn = async () => {
     try {
@@ -198,6 +204,9 @@ export default function Dashboard() {
 
         localStorage.setItem("checkedIn", "true");
         localStorage.setItem("checkInTime", now.toString());
+        // Reset break time when checking in for a new day
+        setTotalBreakSeconds(0);
+        localStorage.setItem("totalBreakSeconds", "0");
 
         setClockedIn(true);
         setStartTime(now);
@@ -230,31 +239,27 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const savedTotalBreak = localStorage.getItem("totalBreakSeconds");
-    const savedOnBreak = localStorage.getItem("onBreak") === "true";
-    const savedBreakStart = localStorage.getItem("breakStartTime");
+  const savedTotalBreak = parseInt(localStorage.getItem("totalBreakSeconds") || "0", 10);
+  const savedOnBreak = localStorage.getItem("onBreak") === "true";
+  const savedBreakStart = localStorage.getItem("breakStartTime");
 
-    if (savedTotalBreak) {
-      let total = parseInt(savedTotalBreak, 10);
-
-      if (savedOnBreak && savedBreakStart) {
-        const now = Date.now();
-        const diff = Math.floor((now - Number(savedBreakStart)) / 1000);
-        total += diff;
-      }
-
-      setTotalBreakSeconds(total);
-    }
-
-    if (savedOnBreak && savedBreakStart) {
-      setOnBreak(true);
-      setBreakStartTime(Number(savedBreakStart));
-    }
-  }, []);
+  if (savedOnBreak && savedBreakStart) {
+    const now = Date.now();
+    const diff = Math.floor((now - Number(savedBreakStart)) / 1000);
+    setTotalBreakSeconds(savedTotalBreak + diff);
+    setOnBreak(true);
+    setBreakStartTime(Number(savedBreakStart));
+  } else {
+    setTotalBreakSeconds(savedTotalBreak);
+  }
+}, []);
 
 
   const handleCheckOut = async () => {
     try {
+      if (onBreak) {
+        await handleBreakOut();
+      }
       const res = await fetch(
         "https://ukashacoder.pythonanywhere.com/api/attendance/time-out/",
         {
@@ -268,9 +273,8 @@ export default function Dashboard() {
       if (res.ok) {
         localStorage.removeItem("checkedIn");
         localStorage.removeItem("checkInTime");
-
-        localStorage.removeItem("totalBreakSeconds");
-
+        // Only reset totalBreakSeconds when actually checking out
+        localStorage.setItem("totalBreakSeconds", "0");
         setClockedIn(false);
         setStartTime(null);
         setElapsedSeconds(0);
@@ -366,36 +370,31 @@ export default function Dashboard() {
           }
         )
         const data = await res.json();
+        console.log(data)
         setAttendanceData(data);
 
-        if (isCheckOut) {
-          localStorage.setItem("totalBreakSeconds", "0")
-          setTotalBreakSeconds(0)
+        if (data.length > 0) {
+          const todayRecord = data[0];
 
-        } else {
-          if (data.length > 0) {
-            const todayRecord = data[0];
+          const [h, m, s] = todayRecord.total_break_time.split(":").map(Number);
+          let totalSeconds = h * 3600 + m * 60 + s;
 
-            const [h, m, s] = todayRecord.total_break_time.split(":").map(Number);
-            let totalSeconds = h * 3600 + m * 60 + s;
+          if (todayRecord.breaks.length > 0) {
+            const lastBreak = todayRecord.breaks[todayRecord.breaks.length - 1];
+            if (lastBreak.break_out === null) {
+              const breakStart = new Date(lastBreak.break_in).getTime();
+              const now = Date.now();
+              totalSeconds += Math.floor((now - breakStart) / 1000);
 
-            if (todayRecord.breaks.length > 0) {
-              const lastBreak = todayRecord.breaks[todayRecord.breaks.length - 1];
-              if (lastBreak.break_out === null) {
-                const breakStart = new Date(lastBreak.break_in).getTime();
-                const now = Date.now();
-                totalSeconds += Math.floor((now - breakStart) / 1000);
-
-                setOnBreak(true);
-                setBreakStartTime(breakStart);
-                localStorage.setItem("onBreak", "true");
-                localStorage.setItem("breakStartTime", breakStart.toString());
-              }
+              setOnBreak(true);
+              setBreakStartTime(breakStart);
+              localStorage.setItem("onBreak", "true");
+              localStorage.setItem("breakStartTime", breakStart.toString());
             }
-
-            setTotalBreakSeconds(totalSeconds);
-            localStorage.setItem("totalBreakSeconds", totalSeconds.toString()); // persist after fetch
           }
+
+          setTotalBreakSeconds(totalSeconds);
+          localStorage.setItem("totalBreakSeconds", totalSeconds.toString()); // persist after fetch
         }
       } catch (err) {
         console.log(err);
@@ -403,7 +402,7 @@ export default function Dashboard() {
     };
 
     fetchAttendanceData();
-  }, [isCheckOut]);
+  }, [isCheckOut, setOnBreak]);
 
 
   useEffect(() => {
@@ -469,7 +468,7 @@ export default function Dashboard() {
       </section>
       <section className="max-w-[1140px] w-full bg-white h-full p-6 rounded-lg">
         <AttendanceTable attendanceData={attendanceData} />
-        <button className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light" onClick={() => downloadCsv(attendanceData)}>Download Sheet</button>
+        <button className="mt-4 flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light" onClick={() => downloadCsv(attendanceData)}>Download Sheet</button>
       </section>
     </main>
   );
