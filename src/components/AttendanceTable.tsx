@@ -1,4 +1,5 @@
 import React from "react";
+import { Dialog, DialogTrigger, DialogContent } from "./ui/dialog";
 
 interface BreakItem {
   break_in: string;
@@ -13,6 +14,8 @@ interface AttendanceData {
   total_hours: string;
   total_break_time: string;
   late: boolean;
+  halfDay: boolean;
+  shortShift: boolean;
   breaks: BreakItem[];
 }
 
@@ -54,6 +57,8 @@ const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
             <th className="p-3 text-left">Break In & Break Out</th>
             <th className="p-3 text-left">Break Time</th>
             <th className="p-3 text-left">Late?</th>
+            <th className="p-3 text-left">Half Day?</th>
+            <th className="p-3 text-left">Short Shift?</th>
           </tr>
         </thead>
         <tbody>
@@ -69,19 +74,27 @@ const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
               <td className="p-3">{item.time_out ? formatTime(item.time_out) : "-"}</td>
               <td className="p-3">{item.total_hours || "-"}</td>
               <td className="p-3">
-                {item.breaks && item.breaks.length > 0 ? (
-                  <div className="space-y-1">
-                    {item.breaks.map((br, i) => (
-                      <div key={i}>
-                        {i + 1}st Break:{" "}
-                        {br.break_in ? formatTime(br.break_in) : "-"} -{" "}
-                        {br.break_out ? formatTime(br.break_out) : "-"}
+                <Dialog>
+                  <DialogTrigger>
+                      <button className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light">View Break</button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    {item.breaks && item.breaks.length > 0 ? (
+                      <div className="space-y-1">
+                        <h1>All Breaks</h1>
+                        {item.breaks.map((br, i) => (
+                          <div key={i}>
+                            {i + 1}st Break:{" "}
+                            {br.break_in ? formatTime(br.break_in) : "-"} -{" "}
+                            {br.break_out ? formatTime(br.break_out) : "-"}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  "-"
-                )}
+                    ) : (
+                      "-"
+                    )}
+                  </DialogContent>
+                </Dialog>
               </td>
               <td className="p-3">{item.total_break_time || "-"}</td>
               <td className="p-3">
@@ -90,6 +103,22 @@ const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
                     }`}
                 >
                   {item.late ? "Yes" : "No"}
+                </span>
+              </td>
+              <td className="p-3">
+                <span
+                  className={`px-2 py-1 rounded text-white text-xs ${item.halfDay ? "bg-red-500" : "bg-green-500"
+                    }`}
+                >
+                  {item.halfDay ? "Yes" : "No"}
+                </span>
+              </td>
+              <td className="p-3">
+                <span
+                  className={`px-2 py-1 rounded text-white text-xs ${item.shortShift ? "bg-red-500" : "bg-green-500"
+                    }`}
+                >
+                  {item.shortShift ? "Yes" : "No"}
                 </span>
               </td>
             </tr>
