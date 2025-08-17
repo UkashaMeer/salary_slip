@@ -45,7 +45,7 @@ export default function Page(){
     };
 
     try {
-        const res = await fetch("https://ukashacoder.pythonanywhere.com/api/employees/create", {
+        const res = await fetch("https://ukashacoder.pythonanywhere.com/api/employees/create/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
