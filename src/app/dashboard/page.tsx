@@ -99,20 +99,6 @@ export default function Dashboard() {
     document.body.removeChild(link);
   };
 
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     checkStatus();
-  //   }, 30000);
-
-  //   checkStatus();
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  // useEffect(() => {
-  //   localStorage.setItem("totalBreakSeconds", totalBreakSeconds.toString());
-  // }, [totalBreakSeconds]);
-
   const checkStatus = async () => {
     try {
       const res = await fetch(
@@ -139,10 +125,17 @@ export default function Dashboard() {
             const elapsed = Math.floor((Date.now() - localTime) / 1000);
             setElapsedSeconds(elapsed);
 
-            if (elapsed >= 36000 && !isCheckOut) {
-              console.log("⏳ Auto-checkout triggered after 10 hours");
+            if (elapsed >= 60 && !isCheckOut) {
+              console.log("⏳ Auto-checkout triggered after 60 seconds");
+
+              if (onBreak) {
+                console.log("☕ Auto break-out before checkout");
+                await handleBreakOut();
+              }
+
               await handleCheckOut();
             }
+
             break;
 
           case "checked_out":
@@ -178,6 +171,23 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, [onBreak, breakStartTime]);
 
+  // Auto-checkout watcher
+  useEffect(() => {
+    if (clockedIn && !isCheckOut && elapsedSeconds >= 60) {
+      (async () => {
+        console.log("⏳ Auto-checkout triggered after 60 seconds");
+
+        if (onBreak) {
+          console.log("☕ Auto break-out before checkout");
+          await handleBreakOut();
+        }
+
+        await handleCheckOut();
+      })();
+    }
+  }, [elapsedSeconds, clockedIn, isCheckOut, onBreak]);
+
+
   const handleCheckIn = async () => {
     try {
       const res = await fetch(
@@ -197,6 +207,9 @@ export default function Dashboard() {
 
         localStorage.setItem("checkedIn", "true");
         localStorage.setItem("checkInTime", now.toString());
+        localStorage.setItem("totalBreakSeconds", "0");
+        setTotalBreakSeconds(0);
+
 
         setClockedIn(true);
         setStartTime(now);
@@ -370,11 +383,12 @@ export default function Dashboard() {
         if (isCheckOut) {
           localStorage.setItem("totalBreakSeconds", "0")
           setTotalBreakSeconds(0)
+        } else if (data.length > 0) {
+          const todayRecord = data[0];
 
-        } else {
-          if (data.length > 0) {
-            const todayRecord = data[0];
-
+          // sirf aaj ka record use karo (kal ka ignore karo)
+          const today = new Date().toISOString().split("T")[0];
+          if (todayRecord.date === today) {
             const [h, m, s] = todayRecord.total_break_time.split(":").map(Number);
             let totalSeconds = h * 3600 + m * 60 + s;
 
@@ -393,9 +407,10 @@ export default function Dashboard() {
             }
 
             setTotalBreakSeconds(totalSeconds);
-            localStorage.setItem("totalBreakSeconds", totalSeconds.toString()); // persist after fetch
+            localStorage.setItem("totalBreakSeconds", totalSeconds.toString());
           }
         }
+
       } catch (err) {
         console.log(err);
       }
@@ -468,7 +483,7 @@ export default function Dashboard() {
       </section>
       <section className="max-w-[1140px] w-full bg-white h-full p-6 rounded-lg">
         <AttendanceTable attendanceData={attendanceData} />
-        <button className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light" onClick={() => downloadCsv(attendanceData)}>Download Sheet</button>
+        <button className="mt-4 flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light" onClick={() => downloadCsv(attendanceData)}>Download Sheet</button>
       </section>
     </main>
   );
