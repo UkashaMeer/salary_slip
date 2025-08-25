@@ -125,8 +125,8 @@ export default function Dashboard() {
             const elapsed = Math.floor((Date.now() - localTime) / 1000);
             setElapsedSeconds(elapsed);
 
-            if (elapsed >= 60 && !isCheckOut) {
-              console.log("⏳ Auto-checkout triggered after 60 seconds");
+            if (elapsed >= SHIFT_SECONDS && !isCheckOut) {
+              console.log("⏳ Auto-checkout triggered after 9 hours");
 
               if (onBreak) {
                 console.log("☕ Auto break-out before checkout");
@@ -173,9 +173,9 @@ export default function Dashboard() {
 
   // Auto-checkout watcher
   useEffect(() => {
-    if (clockedIn && !isCheckOut && elapsedSeconds >= 60) {
+    if (clockedIn && !isCheckOut && elapsedSeconds >= SHIFT_SECONDS) {
       (async () => {
-        console.log("⏳ Auto-checkout triggered after 60 seconds");
+        console.log("⏳ Auto-checkout triggered after 9 hours");
 
         if (onBreak) {
           console.log("☕ Auto break-out before checkout");
