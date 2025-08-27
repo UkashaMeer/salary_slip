@@ -12,6 +12,7 @@ import { attendanceStatusService } from "@/components/dashbaord/service/attendan
 import { localStorageService } from "@/components/dashbaord/service/localStorageService";
 import { formatTime } from "@/components/dashbaord/utils/formatTime";
 import React, { useEffect, useCallback } from "react";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function Dashboard() {
   const {
@@ -146,7 +147,7 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="bg-gray-50 p-4 md:p-8 rounded-sm w-full flex flex-col items-center">
+      <div className="bg-gray-50 p-4 md:p-8 rounded-sm w-full flex flex-col items-center">
 
         <ClockStatusCard
           elapsedSeconds={elapsedSeconds}

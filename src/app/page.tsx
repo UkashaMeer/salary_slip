@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Dashboard from "./dashboard/page";
 import { Loader } from "lucide-react";
 
 export default function Home() {
@@ -11,9 +10,14 @@ export default function Home() {
 
   useEffect(() => {
     const access = localStorage.getItem("access")
+    const role = localStorage.getItem("role")
 
     if (access) {
-      router.replace('/dashboard')
+      if(role === "admin"){
+          router.replace('/employees')
+      }else{
+          router.replace('/dashboard')
+      }
     } else {
       router.replace('/auth')
     }

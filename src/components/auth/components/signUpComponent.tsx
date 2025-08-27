@@ -6,6 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import { SignInFlow } from "@/components/types"
+import { toast } from "sonner"
 
 const formSchema = z.object({
   name: z.string().max(25, "Name must be at least 25 characters"),
@@ -48,13 +49,14 @@ export default function SignUpComponent({setState}: SignUpProps) {
 
       const data = await res.json()
       if (res.ok) {
-        console.log(data)
+        toast.success("Registered Successfully")
+        setState("signIn")
       } else {
-        console.log(data.error || "Register failed")
+        toast.error(data.error || "Register failed")
       }
     } catch (error) {
       console.error(error)
-      console.log("Something went wrong")
+      toast.error("Something went wrong")
     } finally {
       setLoading(false)
     }

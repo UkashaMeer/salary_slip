@@ -14,21 +14,11 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 
-const items = [
+const Employeeitems = [
   {
     title: "Home",
     url: "/dashboard",
     icon: Home,
-  },
-  {
-    title: "Employees",
-    url: "/employees",
-    icon: IdCardLanyard,
-  },
-  {
-    title: "Salary Management",
-    url: "/salary",
-    icon: Landmark,
   },
   {
     title: "Leaves",
@@ -42,11 +32,31 @@ const items = [
   },
 ]
 
+const Adminitems = [
+  {
+    title: "Employees",
+    url: "/employees",
+    icon: IdCardLanyard,
+  },
+  {
+    title: "Salary Management",
+    url: "/salary",
+    icon: Landmark,
+  },
+  {
+    title: "Logout",
+    url: "/auth",
+    icon: LogOut,
+  },
+]
+
 export function SideBar() {
 
-    const resetLocalStorage = () => {
-        localStorage.clear()
-    }
+  const resetLocalStorage = () => {
+    localStorage.clear()
+  }
+
+  const role = localStorage.getItem("role")
 
   return (
     <Sidebar>
@@ -57,27 +67,51 @@ export function SideBar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                item.title === 'Logout' ? (
-                <SidebarMenuItem key={item.title} onClick={resetLocalStorage}>
-                    <SidebarMenuButton asChild>
+              {role === "employee" ? (
+                Employeeitems.map((item) => (
+                  item.title === 'Logout' ? (
+                    <SidebarMenuItem key={item.title} onClick={resetLocalStorage}>
+                      <SidebarMenuButton asChild>
                         <Link href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
+                          <item.icon />
+                          <span>{item.title}</span>
                         </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-                ) : (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                )
-              ))}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ) : (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                ))
+              ) : (
+                Adminitems.map((item) => (
+                  item.title === 'Logout' ? (
+                    <SidebarMenuItem key={item.title} onClick={resetLocalStorage}>
+                      <SidebarMenuButton asChild>
+                        <Link href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ) : (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                ))
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
