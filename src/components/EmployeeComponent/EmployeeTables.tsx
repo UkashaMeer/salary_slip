@@ -255,7 +255,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
   })
 
   return (
-    <div className="w-full max-w-[1140px]">
+    <div className="w-full overflow-hidden">
 
     {/* Edit Dialog */}
       <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
@@ -328,8 +328,8 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
             </DialogContent>
         </Dialog>
 
-      <div className="overflow-hidden rounded-md border mt-4 w-full mx-auto">
-        <Table>
+      <div className="overflow-x-auto rounded-md border w-full mt-4 mx-auto">
+        <Table className="overflow-x-auto">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -346,7 +346,7 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-normal break-words max-w-xs">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}

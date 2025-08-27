@@ -3,6 +3,7 @@ import LeavesTable from "@/components/LeavesTable"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
 import { useState } from "react"
+import { toast } from "sonner"
 
 export default function Leaves() {
     const [email, setEmail] = useState("ukashacoder@gmail.com")
@@ -33,7 +34,7 @@ export default function Leaves() {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${access}` // agar JWT token chahiye
+                    "Authorization": `Bearer ${access}`
                 },
                 body: JSON.stringify(payload)
             })
@@ -42,16 +43,16 @@ export default function Leaves() {
             console.log(data)
 
             if (res.ok) {
-                alert(data.message)
+                toast.success(data.message)
                 setDate("")
                 setReason("")
                 setOpenModel(false)
             } else {
-                alert(data.error || "Something went wrong")
+                toast.error(data.error || "Something went wrong")
             }
         } catch (error) {
             console.error(error)
-            alert("Request failed")
+            toast.error("Request failed")
         }
     }
 

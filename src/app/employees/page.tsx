@@ -60,7 +60,6 @@ export default function Page(){
         setOpenModel(false)
 
         console.log(data);
-        // Optionally clear form
         setName("");
         setEmail("");
         setSalary("");
