@@ -44,7 +44,7 @@ const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
   };
 
   return (
-    <div className="overflow-x-auto mt-6">
+    <div className="overflow-x-auto">
       <table className="min-w-full border border-gray-300 text-sm rounded-lg overflow-hidden">
         <thead className="bg-gray-100 text-gray-700">
           <tr>

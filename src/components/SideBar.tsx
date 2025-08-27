@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, FileUser, LogOut } from "lucide-react"
+import { Home, FileUser, LogOut, IdCardLanyard, Landmark } from "lucide-react"
 
 import {
   Sidebar,
@@ -21,13 +21,23 @@ const items = [
     icon: Home,
   },
   {
+    title: "Employees",
+    url: "/employees",
+    icon: IdCardLanyard,
+  },
+  {
+    title: "Salary Management",
+    url: "/salary",
+    icon: Landmark,
+  },
+  {
     title: "Leaves",
     url: "/leaves",
     icon: FileUser,
   },
   {
     title: "Logout",
-    url: "/auth/login",
+    url: "/auth",
     icon: LogOut,
   },
 ]

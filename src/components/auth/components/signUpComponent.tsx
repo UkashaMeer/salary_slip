@@ -1,5 +1,3 @@
-"use client"
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -7,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useState } from "react"
-import Link from "next/link"
+import { SignInFlow } from "@/components/types"
 
 const formSchema = z.object({
   name: z.string().max(25, "Name must be at least 25 characters"),
@@ -19,10 +17,13 @@ const formSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
-export default function SignUp() {
+interface SignUpProps {
+  setState: (state: SignInFlow) => void
+}
+
+export default function SignUpComponent({setState}: SignUpProps) {
   const [loading, setLoading] = useState(false)
 
-  // React Hook Form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,7 +37,6 @@ export default function SignUp() {
     },
   })
 
-  // Handle form submit
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
     try {
@@ -48,14 +48,13 @@ export default function SignUp() {
 
       const data = await res.json()
       if (res.ok) {
-        alert("Register successful")
         console.log(data)
       } else {
-        alert(data.error || "Register failed")
+        console.log(data.error || "Register failed")
       }
     } catch (error) {
       console.error(error)
-      alert("Something went wrong")
+      console.log("Something went wrong")
     } finally {
       setLoading(false)
     }
@@ -178,10 +177,9 @@ export default function SignUp() {
                   {loading ? "Signing up..." : "Sign Up"}
               </Button>
               <div className=" text-[16px] font-medium">
-                  Or <Link href="/auth/login" className="font-bold text-[#0f162e] underline">Login</Link>
+                  Or <Button onClick={() => setState("signIn")} className="font-bold text-[#111] bg-transparent hover:bg-transparent underline cursor-pointer">Sign In</Button>
               </div>
             </div>
-            {/* Submit */}
             </form>
         </Form>
         </div>

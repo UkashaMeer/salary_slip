@@ -17,7 +17,7 @@ const ClockStatusCard: React.FC<Props> = ({
   const remainingBreakSeconds = Math.max(0, breakLimitSeconds - totalBreakSeconds);
 
   return (
-    <div className="bg-gray-100 p-4 rounded shadow text-sm text-center flex items-center justify-between gap-4 max-w-[1140px] w-full mx-auto">
+    <div className="bg-gray-100 p-4 rounded shadow text-sm text-center flex items-center justify-between gap-4 w-full mx-auto">
       <p className="">⏳ Time since check-in: {formatTime(elapsedSeconds)}</p>
       <p className="">🕒 Remaining Shift Time: {formatTime(remainingShiftSeconds)}</p>
       <p className="">☕ Total Break Time: {formatTime(totalBreakSeconds)}</p>

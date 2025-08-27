@@ -1,5 +1,3 @@
-"use client"
-
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -9,17 +7,21 @@ import { Input } from "@/components/ui/input"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { SignInFlow } from "@/components/types"
 
 const formSchema = z.object({
   username: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
-export default function LoginForm() {
+interface SignInProps {
+  setState: (state: SignInFlow) => void
+}
+
+export default function SignInComponent({setState} : SignInProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
-  // React Hook Form
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -28,7 +30,6 @@ export default function LoginForm() {
     },
   })
 
-  // Handle form submit
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
     try {
@@ -40,18 +41,17 @@ export default function LoginForm() {
 
       const data = await res.json()
       if (res.ok) {
-        alert("Login successful")
         console.log(data)
         console.log(data.access)
         localStorage.setItem('access', data.access)
         localStorage.setItem("employee_id", data.employee.id);
         router.push('/dashboard')
       } else {
-        alert(data.error || "Login failed")
+        console.log(data.error || "Login failed")
       }
     } catch (error) {
       console.error(error)
-      alert("Something went wrong")
+      console.log("Something went wrong")
     } finally {
       setLoading(false)
     }
@@ -96,12 +96,11 @@ export default function LoginForm() {
                 )}
             />
 
-            {/* Submit */}
             <Button type="submit" className="w-full bg-[#141D38] hover:bg-[#0f162e] text-white font-medium py-2 px-4 rounded-lg shadow-md transition-all disabled:opacity-50" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
             </Button>
             <div className="text-center text-[16px] font-medium">
-                Or <Link href="/auth/signup" className="font-bold text-[#0f162e] underline">Sign Up</Link>
+                Or <Button onClick={() => setState("signUp")} className="font-bold text-[#111] bg-transparent hover:bg-transparent underline cursor-pointer">Sign Up</Button>
             </div>
             </form>
         </Form>
