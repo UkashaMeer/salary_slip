@@ -1,6 +1,18 @@
 "use client"
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { MoreHorizontal } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
+import { showToast } from "@/lib/showToast";
+import { deleteEmployee, updateEmployee } from "@/lib/employeeApi";
+import { useRouter } from "next/navigation";
+import { Employee } from "../../types";
+import EditDialog from "./EditDialog";
+import useEditDialogState from "../hooks/useEditDialogState";
+import ViewDialog from "./ViewDialog";
+import DeleteDialog from "./DeleteDialog";
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -13,10 +25,7 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table"
-import { ChevronRight, MoreHorizontal } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+
 import {
   Table,
   TableBody,
@@ -34,26 +43,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { showToast } from "@/lib/showToast";
-import { deleteEmployee, updateEmployee } from "@/lib/employeeApi";
-import { useRouter } from "next/navigation";
-
-export type Employee = {
-  id: string
-  name: string
-  email: string
-  salary: string
-  phone: string
-  cnic: string
-  address: string
-}
 
 export function EmployeeTables({ employees, reloadEmployees }: { employees: Employee[], reloadEmployees: () => void }) {
 
@@ -65,27 +54,20 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
   const [rowSelection, setRowSelection] = useState({})
   const [selectedUser, setSelectedUser] = useState<Employee | null>(null)
   
-  // Dialog State 
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openViewsDialog, setOpenViewDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   
-  // Edit Employee State
-  const [editName, setEditName] = useState("")
-  const [editEmail, setEditEmail] = useState("")
-  const [editSalary, setEditSalary] = useState("")
-  const [editPhone, setEditPhone] = useState("")
-  const [editCnic, setEditCnic] = useState("")
-  const [editAddress, setEditAddress] = useState("")
+  const editDialogState =  useEditDialogState()
 
   const handleEditClick = (user: Employee) => {
     setSelectedUser(user)
-    setEditName(user.name)
-    setEditEmail(user.email)
-    setEditSalary(user.salary)
-    setEditPhone(user.phone)
-    setEditCnic(user.cnic)
-    setEditAddress(user.address)
+    editDialogState.setEditName(user.name)
+    editDialogState.setEditEmail(user.email)
+    editDialogState.setEditSalary(user.salary)
+    editDialogState.setEditPhone(user.phone)
+    editDialogState.setEditCnic(user.cnic)
+    editDialogState.setEditAddress(user.address)
     setOpenEditDialog(true)
   }
 
@@ -93,12 +75,12 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
     if (!selectedUser) return;
 
     const payload = {
-      name: editName,
-      email: editEmail,
-      salary: editSalary,
-      phone: editPhone,
-      cnic: editCnic,
-      address: editAddress
+      name: editDialogState.editName,
+      email: editDialogState.editEmail,
+      salary: editDialogState.editSalary,
+      phone: editDialogState.editPhone,
+      cnic: editDialogState.editCnic,
+      address: editDialogState.editAddress
     }
 
     try{
@@ -243,61 +225,13 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
     <div className="w-full overflow-hidden">
 
     {/* Edit Dialog */}
-      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
-        <DialogContent>
-          <DialogTitle>Update Employee</DialogTitle>
-            <Input type="text" placeholder="Enter Name" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editName} onChange={(e) => setEditName(e.target.value)} />
-            <Input type="email" placeholder="Enter Email" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} />
-            <Input type="text" placeholder="Enter Salary" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editSalary} onChange={(e) => setEditSalary(e.target.value)} />
-            <Input type="tel" placeholder="Enter Phone" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
-            <Input type="text" placeholder="Enter CNIC" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editCnic} onChange={(e) => setEditCnic(e.target.value)} />
-            <Input type="text" placeholder="Enter Address" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} />
-                <button onClick={handleUpdate} className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light">
-                Update Employee
-                <ChevronRight strokeWidth={2} size='20px' />
-            </button>
-        </DialogContent>
-      </Dialog>
+    <EditDialog openEditDialog={openEditDialog} setOpenEditDialog={setOpenEditDialog} handleUpdate={handleUpdate}   {...editDialogState} />
 
     {/* View Dialog */}
-        <Dialog open={openViewsDialog} onOpenChange={setOpenViewDialog}>
-            <DialogContent>
-            <DialogTitle>View Employee</DialogTitle>
-                <ul>
-                    <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Name: {selectedUser?.name}</li>
-                    <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Email: {selectedUser?.email}</li>
-                    <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Salary: {selectedUser?.salary}</li>
-                    <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Phone: {selectedUser?.phone}</li>
-                    <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>CNIC: {selectedUser?.cnic}</li>
-                    <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Address: {selectedUser?.address}</li>
-                </ul>
-                <DialogClose>
-                    <button className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light w-auto">
-                        Close
-                    </button>
-                </DialogClose>
+    <ViewDialog openViewsDialog={openViewsDialog} setOpenViewDialog={setOpenViewDialog} selectedUser={selectedUser} />
 
-            </DialogContent>
-        </Dialog>
-
-        {/* Delete Dialog */}
-        <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-            <DialogContent>
-            <DialogTitle>Delete Employee</DialogTitle>
-                <span className="font-[600]">Are you sure you want to delete this employee: <span className="text-red-500">{selectedUser?.name}</span>?</span>
-                <div className="flex items-center gap-2">
-                    <button onClick={handleDelete} className="flex items-center justify-center bg-red-500 p-2 rounded-sm text-white text-sm font-light w-full">
-                        Delete
-                    </button>
-                    <DialogClose className="w-full">
-                        <button className="flex items-center justify-center bg-[#141D38] p-2 rounded-sm text-white text-sm font-light w-full">
-                            Cancel
-                        </button>
-                    </DialogClose>
-                </div>
-
-            </DialogContent>
-        </Dialog>
+    {/* Delete Dialog */}
+    <DeleteDialog openDeleteDialog={openDeleteDialog} setOpenDeleteDialog={setOpenDeleteDialog} handleDelete={handleDelete} selectedUser={selectedUser} />
 
       <div className="overflow-x-auto rounded-md border w-full mt-4 mx-auto">
         <Table className="overflow-x-auto">

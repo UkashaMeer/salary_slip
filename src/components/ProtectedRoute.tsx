@@ -12,9 +12,9 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     const access = localStorage.getItem("access");
 
     if (!access) {
-      router.replace("/auth"); // agar access token nahi hai -> auth par bhej do
+      router.replace("/auth");
     } else {
-      setLoading(false); // agar login hai -> allow
+      setLoading(false); 
     }
   }, [router]);
 

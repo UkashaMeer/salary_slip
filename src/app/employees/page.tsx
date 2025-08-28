@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input";
-import { EmployeeTables } from "@/components/EmployeeComponent/EmployeeTables";
+import { EmployeeTables } from "@/components/employee/components/EmployeeTables";
 import { useEffect, useState } from "react";
 import { fetchEmployees } from "@/lib/api";
 import { showToast } from "@/lib/showToast";

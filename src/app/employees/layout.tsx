@@ -9,7 +9,7 @@ export default function EmployeesLayout({
 }>) {
   return (
     <ProtectedRoute>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <main className="w-full min-h-screen flex gap-4 items-star justify-start bg-[#141D38] py-8 px-4">
           <SideBar />
           <SidebarTrigger />

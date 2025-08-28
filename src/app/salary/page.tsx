@@ -1,6 +1,6 @@
 "use client"
 
-import { EmployeeNameSelect } from "@/components/EmployeeComponent/EmployeeNameSelect";
+import { EmployeeNameSelect } from "@/components/employee/components/EmployeeNameSelect";
 import { generatePDF } from "@/components/salary/feature/generatePDF";
 import { ApiResponse, FormData } from "@/components/types";
 import { useState,  ChangeEvent, FormEvent } from "react";

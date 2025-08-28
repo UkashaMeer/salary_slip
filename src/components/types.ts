@@ -40,3 +40,96 @@ export interface ApiResponse {
     final_salary: number;
   };
 }
+
+export interface AttendanceDataT {
+  date: string;
+  time_in: string;
+  time_out: string;
+  total_hours: string;
+  total_break_time: string;
+  late: boolean;
+  halfDay: boolean;
+  shortShift: boolean;
+  breaks: BreakTime[];
+}
+
+export interface Props {
+  attendanceData: AttendanceDataT[];
+}
+
+
+export interface ClockStatusCardProps {
+  elapsedSeconds: number;
+  totalBreakSeconds: number;
+  shiftSeconds: number;
+  breakLimitSeconds: number;
+  formatTime: (s: number) => string;
+}
+
+export interface ControlButtonsProps {
+  onBreak: boolean;
+  clockedIn: boolean;
+  handleBreakIn: () => void;
+  handleBreakOut: () => void;
+  handleCheckOut: () => void;
+}
+
+export type Leave = {
+    id: number;
+    date: string;
+    reason: string;
+    email: string;
+    status: string;
+};
+
+export type LeaveTableProps = {
+    handleLeave: (id: number, status: string) => void; // function ka type
+};
+
+export type OptionType = {
+    id: string; 
+    value: string;
+    label: string;
+    salary: string;
+}
+
+export type Employee = {
+  id: string
+  name: string
+  email: string
+  salary: string
+  phone: string
+  cnic: string
+  address: string
+}
+
+export type EditDialogProps = {
+  openEditDialog: boolean
+  setOpenEditDialog: (open: boolean) => void
+  handleUpdate: () => void
+  editName: string
+  editEmail: string
+  editSalary: string
+  editPhone: string
+  editCnic: string
+  editAddress: string
+  setEditName: (val: string) => void
+  setEditEmail: (val: string) => void
+  setEditSalary: (val: string) => void
+  setEditPhone: (val: string) => void
+  setEditCnic: (val: string) => void
+  setEditAddress: (val: string) => void
+}
+
+export interface ViewDialogProps {
+  openViewsDialog: boolean
+  setOpenViewDialog: (open: boolean) => void
+  selectedUser: Employee | null
+}
+
+export interface DeleteDialogProps {
+  openDeleteDialog: boolean
+  setOpenDeleteDialog: (open: boolean) => void
+  selectedUser: Employee | null
+  handleDelete: () => void
+}

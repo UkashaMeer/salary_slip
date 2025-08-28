@@ -1,12 +1,6 @@
-interface Props {
-  elapsedSeconds: number;
-  totalBreakSeconds: number;
-  shiftSeconds: number;
-  breakLimitSeconds: number;
-  formatTime: (s: number) => string;
-}
+import { ClockStatusCardProps } from "./types";
 
-const ClockStatusCard: React.FC<Props> = ({
+const ClockStatusCard: React.FC<ClockStatusCardProps> = ({
   elapsedSeconds,
   totalBreakSeconds,
   shiftSeconds,

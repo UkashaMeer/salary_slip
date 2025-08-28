@@ -1,26 +1,6 @@
 import React from "react";
 import { Dialog, DialogTrigger, DialogContent } from "./ui/dialog";
-
-interface BreakItem {
-  break_in: string;
-  break_out: string;
-}
-
-interface AttendanceData {
-  date: string;
-  time_in: string;
-  time_out: string;
-  total_hours: string;
-  total_break_time: string;
-  late: boolean;
-  halfDay: boolean;
-  shortShift: boolean;
-  breaks: BreakItem[];
-}
-
-interface Props {
-  attendanceData: AttendanceData[];
-}
+import { Props } from "./types";
 
 const AttendanceTable: React.FC<Props> = ({ attendanceData }) => {
   const formatDate = (isoString: string) => {

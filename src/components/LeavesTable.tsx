@@ -1,16 +1,5 @@
 import { useEffect, useState } from "react"
-
-type Leave = {
-    id: number;
-    date: string;
-    reason: string;
-    email: string;
-    status: string;
-};
-
-type LeaveTableProps = {
-    handleLeave: (id: number, status: string) => void; // function ka type
-};
+import { Leave, LeaveTableProps } from "./types"
 
 export default function LeavesTable({handleLeave}: LeaveTableProps) {
 

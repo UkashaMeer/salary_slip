@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Select, { SingleValue } from "react-select"
-
-type OptionType = {
-    id: string; 
-    value: string;
-    label: string;
-    salary: string;
-}
+import { OptionType } from "../../types";
 
 export const EmployeeNameSelect = ({onSelectEmployee} : {onSelectEmployee: (employee: OptionType) => void}) => {
     const [options, setOptions] = useState<OptionType[]>([]);

@@ -1,12 +1,6 @@
-interface Props {
-  onBreak: boolean;
-  clockedIn: boolean;
-  handleBreakIn: () => void;
-  handleBreakOut: () => void;
-  handleCheckOut: () => void;
-}
+import { ControlButtonsProps } from "./types";
 
-const ControlButtons: React.FC<Props> = ({
+const ControlButtons: React.FC<ControlButtonsProps> = ({
   onBreak,
   clockedIn,
   handleBreakIn,
