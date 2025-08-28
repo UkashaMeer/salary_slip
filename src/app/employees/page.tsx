@@ -20,6 +20,7 @@ export default function Page(){
     const [phone, setPhone] = useState("");
     const [cnic, setCnic] = useState("");
     const [address, setAddress] = useState("");
+    const [password, setPassword] = useState("");
     const [openModel, setOpenModel] = useState<boolean>(false)
     const [employees, setEmployees] = useState<any[]>([]);
 
@@ -42,10 +43,11 @@ export default function Page(){
         phone,
         cnic,
         address,
+        password
     };
 
     try {
-        const res = await fetch("https://ukashacoder.pythonanywhere.com/api/employees/create/", {
+        const res = await fetch("https://ukashacoder.pythonanywhere.com/api/register/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -66,6 +68,7 @@ export default function Page(){
         setPhone("");
         setCnic("");
         setAddress("");
+        setPassword("")
 
         await loadEmployees()
         } else {
@@ -107,6 +110,7 @@ export default function Page(){
                             <Input value={phone} onChange={(e) => setPhone(e.target.value)} type="tel" placeholder="Enter Phone" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={cnic} onChange={(e) => setCnic(e.target.value)} type="text" placeholder="Enter CNIC" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                             <Input value={address} onChange={(e) => setAddress(e.target.value)} type="text" placeholder="Enter Address" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
+                            <Input value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Enter Password" className="focus:!outline-none focus:!ring-0 rounded-sm border-[#ccc]" />
                              <button type="submit" className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light">
                                 Add Employee
                                 <ChevronRight strokeWidth={2} size='20px' />

@@ -11,7 +11,7 @@ import { SignInFlow } from "@/components/types"
 import { toast } from "sonner"
 
 const formSchema = z.object({
-  username: z.string().email("Enter a valid email"),
+  username: z.string(),
   password: z.string().min(6, "Password must be at least 6 characters"),
 })
 
@@ -43,15 +43,21 @@ export default function SignInComponent({ setState }: SignInProps) {
       const data = await res.json()
       if (res.ok) {
         localStorage.setItem("role", data.role)
-        localStorage.setItem('access', data.access)
-        localStorage.setItem("employee_id", data.employee.id)
-        if (localStorage.getItem("role") === "admin") {
-          router.replace('/employees')
-        } else {
-          router.replace('/dashboard')
+        localStorage.setItem("access", data.access)
+
+        if (data.employee) {
+          localStorage.setItem("employee_id", data.employee.id)
         }
+
+        if (data.role === "admin") {
+          router.replace("/employees")
+        } else {
+          router.replace("/dashboard")
+        }
+
         toast.success("Login Successfully")
-      } else {
+      }
+      else {
         toast.error(data.error || "Login failed")
       }
     } catch (error) {

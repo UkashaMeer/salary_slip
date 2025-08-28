@@ -15,6 +15,8 @@ export type AttendanceRow = {
   time_out: string;
   total_hours: string;
   late: boolean;
+  shortShift: boolean;
+  halfDay: boolean;
   breaks: BreakTime[];
   total_break_time: string;
 };

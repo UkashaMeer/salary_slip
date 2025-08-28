@@ -9,7 +9,9 @@ export const DownloadAttendanceSheet = (attendanceData: AttendanceRow[]) => {
         "Total Hours",
         "Break In & Break Out",
         "Break Time",
-        "Late"
+        "Late",
+        "shortShift",
+        "halfDay"
     ];
 
     const rows = attendanceData.map((row, index) => {
@@ -25,7 +27,9 @@ export const DownloadAttendanceSheet = (attendanceData: AttendanceRow[]) => {
             row.total_hours ?? "—",
             breakDetails,
             row.total_break_time ?? "—",
-            row.late ? "Yes" : "No"
+            row.late ? "Yes" : "No",
+            row.shortShift ? "Yes" : "No",
+            row.halfDay ? "Yes" : "No"
         ];
     });
 
