@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true, // TypeScript errors ko skip karega
   },
- output: 'export',
+//  output: 'export',
 };
 
 export default nextConfig;

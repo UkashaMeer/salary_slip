@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/dialog"
 import { showToast } from "@/lib/showToast";
 import { deleteEmployee, updateEmployee } from "@/lib/employeeApi";
-import AttendanceTable from "../AttendanceTable";
+import { useRouter } from "next/navigation";
 
 export type Employee = {
   id: string
@@ -56,6 +56,8 @@ export type Employee = {
 }
 
 export function EmployeeTables({ employees, reloadEmployees }: { employees: Employee[], reloadEmployees: () => void }) {
+
+  const router = useRouter()
     
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -67,7 +69,6 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
   const [openEditDialog, setOpenEditDialog] = useState(false)
   const [openViewsDialog, setOpenViewDialog] = useState(false)
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
-  const [openAttendanceViewDialog, setOpenAttendanceViewDialog] = useState(false)
   
   // Edit Employee State
   const [editName, setEditName] = useState("")
@@ -76,8 +77,6 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
   const [editPhone, setEditPhone] = useState("")
   const [editCnic, setEditCnic] = useState("")
   const [editAddress, setEditAddress] = useState("")
-
-  const [attendanceData, setAttendanceData] = useState([])
 
   const handleEditClick = (user: Employee) => {
     setSelectedUser(user)
@@ -138,19 +137,6 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
       showToast("Error In Deleting Employee.")
     }
   };
-
-
-  useEffect(()  => {
-    const FetchData = async () => {
-      const res = await fetch(
-        `https://ukashacoder.pythonanywhere.com/api/attendance/`, {
-          method: 'Get'
-        }
-      )
-      const data = await res.json();
-      console.log(data)
-    }
-  }, [])
 
   const columns: ColumnDef<Employee>[] = [
     {
@@ -215,10 +201,9 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
                 View Profile
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={(e) => {
+                onClick={(e) => {
                   e.preventDefault()
-                  setSelectedUser(user)
-                  setOpenAttendanceViewDialog(true)
+                  router.replace(`/attendance/${user?.id}`)
                 }}
               >
                 View Attendance
@@ -286,20 +271,6 @@ export function EmployeeTables({ employees, reloadEmployees }: { employees: Empl
                     <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>CNIC: {selectedUser?.cnic}</li>
                     <li className="text-[16px] flex items-center"><ChevronRight strokeWidth={2} size="16px"/>Address: {selectedUser?.address}</li>
                 </ul>
-                <DialogClose>
-                    <button className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light w-auto">
-                        Close
-                    </button>
-                </DialogClose>
-
-            </DialogContent>
-        </Dialog>
-
-    {/* View Attendance Dialog */}
-        <Dialog open={openAttendanceViewDialog} onOpenChange={setOpenAttendanceViewDialog}>
-            <DialogContent>
-            <DialogTitle>View Attendance</DialogTitle>
-                <AttendanceTable attendanceData={attendanceData} />
                 <DialogClose>
                     <button className="flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light w-auto">
                         Close

@@ -10,7 +10,6 @@ type BreakTime = {
 };
 
 export type AttendanceRow = {
-  employee_name: string;
   date: string;
   time_in: string;
   time_out: string;

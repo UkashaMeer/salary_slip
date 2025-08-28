@@ -37,7 +37,6 @@ export const useAttendanceData = ({
         } else if (data.length > 0) {
           const todayRecord = data[0];
 
-          // Only use today's record (ignore yesterday's)
           const today = new Date().toISOString().split("T")[0];
           if (todayRecord.date === today) {
             const [h, m, s] = todayRecord.total_break_time.split(":").map(Number);

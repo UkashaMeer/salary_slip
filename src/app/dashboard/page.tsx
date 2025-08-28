@@ -46,6 +46,7 @@ export default function Dashboard() {
     breakStartTime,
     setElapsedSeconds,
     setTotalBreakSeconds,
+    totalBreakSeconds
   });
 
   const handleCheckIn = useCallback(async () => {

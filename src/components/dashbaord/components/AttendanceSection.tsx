@@ -1,6 +1,6 @@
 import React from "react";
 import AttendanceTable from "@/components/AttendanceTable";
-import { DownloadSalarySlip } from "@/components/dashbaord/features/download-salary-slip";
+import { DownloadAttendanceSheet } from "@/components/dashbaord/features/download-attendance-data-slip";
 import { AttendanceData } from "@/components/types";
 
 interface AttendanceSectionProps {
@@ -13,7 +13,7 @@ const AttendanceSection: React.FC<AttendanceSectionProps> = ({ attendanceData })
       <AttendanceTable attendanceData={attendanceData} />
       <button 
         className="mt-4 flex items-center justify-between bg-[#141D38] p-2 rounded-sm text-white text-sm font-light" 
-        onClick={() => DownloadSalarySlip(attendanceData)}
+        onClick={() => DownloadAttendanceSheet(attendanceData)}
       >
         Download Sheet
       </button>
