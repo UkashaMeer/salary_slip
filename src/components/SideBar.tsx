@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, FileUser, LogOut, IdCardLanyard, Landmark } from "lucide-react"
+import { Home, FileUser, LogOut, CalendarClock, Wallet, Users } from "lucide-react"
 
 import {
   Sidebar,
@@ -23,7 +23,7 @@ const Employeeitems = [
   {
     title: "Leaves",
     url: "/leaves",
-    icon: FileUser,
+    icon: CalendarClock,
   },
   {
     title: "Logout",
@@ -36,12 +36,17 @@ const Adminitems = [
   {
     title: "Employees",
     url: "/employees",
-    icon: IdCardLanyard,
+    icon: Users,
+  },
+  {
+    title: "Leave Request",
+    url: "/leave_requests",
+    icon: CalendarClock,
   },
   {
     title: "Salary Management",
     url: "/salary",
-    icon: Landmark,
+    icon: Wallet,
   },
   {
     title: "Logout",

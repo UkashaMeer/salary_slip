@@ -12,7 +12,6 @@ import { attendanceStatusService } from "@/components/dashbaord/service/attendan
 import { localStorageService } from "@/components/dashbaord/service/localStorageService";
 import { formatTime } from "@/components/dashbaord/utils/formatTime";
 import React, { useEffect, useCallback } from "react";
-import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function Dashboard() {
   const {
