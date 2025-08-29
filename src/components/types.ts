@@ -80,6 +80,7 @@ export type Leave = {
     reason: string;
     email: string;
     status: string;
+    rejection_reason: string
 };
 
 export type LeaveTableProps = {
@@ -132,4 +133,19 @@ export interface DeleteDialogProps {
   setOpenDeleteDialog: (open: boolean) => void
   selectedUser: Employee | null
   handleDelete: () => void
+}
+
+export type leavesDataProps = {
+  id: string;
+  employee__id: string;
+  employee__name: string;
+  date: string;
+  reason: string;
+  email: string;
+  status: "P" | "A" | "R";
+  rejection_reason: string
+}
+
+export interface AllLeavesDataProps {
+  leavesData: leavesDataProps[]
 }

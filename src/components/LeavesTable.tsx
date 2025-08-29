@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react"
 import { Leave, LeaveTableProps } from "./types"
+import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "./ui/dialog"
+import { Button } from "./ui/button"
 
 export default function LeavesTable({handleLeave}: LeaveTableProps) {
 
@@ -42,6 +44,7 @@ export default function LeavesTable({handleLeave}: LeaveTableProps) {
                         <th className="p-3 text-left">Reason</th>
                         <th className="p-3 text-left">Email</th>
                         <th className="p-3 text-left">Status</th>
+                        <th className="p-3 text-left">Rejection Reason</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,19 +60,36 @@ export default function LeavesTable({handleLeave}: LeaveTableProps) {
                             <td className="p-3">
                                 <span
                                     className={`px-2 py-1 rounded text-white text-xs ${item.status === "A"
-                                            ? "bg-green-500"
-                                            : item.status === "P"
-                                                ? "bg-yellow-500"
-                                                : "bg-red-500"
-                                        }`}
+                                        ? "bg-green-500"
+                                        : item.status === "P"
+                                        ? "bg-yellow-500"
+                                        : "bg-red-500"
+                                    }`}
                                 >
                                     {item.status === "A"
                                         ? "Approved"
                                         : item.status === "P"
-                                            ? "Pending"
-                                            : "Rejected"}
+                                        ? "Pending"
+                                        : "Rejected"}
                                 </span>
                             </td>
+                            {
+                                item?.rejection_reason && item.rejection_reason.split("").length > 30 ? (
+                                    <Dialog>
+                                        <DialogTrigger>
+                                            <button className="bg-[#141D38] text-white text-xs py-1 px-2 rounded-sm m-3 cursor-pointer">View Rejection Reason</button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogTitle>Rejection Reason</DialogTitle>
+                                            <p>
+                                                {item.rejection_reason}
+                                            </p>
+                                        </DialogContent>
+                                    </Dialog>
+                                ) : (
+                                    <td className="p-3">{item.rejection_reason}</td>
+                                )
+                            }
                         </tr>
                     ))}
                 </tbody>
