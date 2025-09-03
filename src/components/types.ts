@@ -149,3 +149,18 @@ export type leavesDataProps = {
 export interface AllLeavesDataProps {
   leavesData: leavesDataProps[]
 }
+
+export type TasksProps = {
+    id: string;
+    employee__id: string;
+    employee__name: string;
+    title:  string;
+    start_date: string;
+    end_date: string;
+    task_priority: "C" | "H" | "M" | "L";
+    description: string
+}
+
+export interface AllTasksProps {
+    tasksData: TasksProps[]
+}

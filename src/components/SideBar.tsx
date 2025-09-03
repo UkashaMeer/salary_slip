@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, FileUser, LogOut, CalendarClock, Wallet, Users } from "lucide-react"
+import { Home, FileUser, LogOut, CalendarClock, Wallet, Users, ListChecks } from "lucide-react"
 
 import {
   Sidebar,
@@ -37,6 +37,11 @@ const Adminitems = [
     title: "Employees",
     url: "/employees",
     icon: Users,
+  },
+  {
+    title: "Tasks",
+    url: "/tasks",
+    icon: ListChecks,
   },
   {
     title: "Leave Request",
