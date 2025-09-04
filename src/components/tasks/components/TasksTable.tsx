@@ -17,6 +17,7 @@ import { Dialog } from "@radix-ui/react-dialog"
 import { Button } from "@/components/ui/button"
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ArrowDown, ArrowUp } from "lucide-react"
+import { toast } from "sonner"
 
 type Task = {
     id: number
@@ -113,8 +114,9 @@ export function TasksTable({ data }: { data: Task[] }) {
                         })
                     })
 
-                    const data = await res.json()
-                    console.log(data)
+                    if(res.ok){
+                        toast.success("Task Status Updated Successfully.")
+                    }
                 }
 
                 return (
