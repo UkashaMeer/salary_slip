@@ -21,6 +21,11 @@ const Employeeitems = [
     icon: Home,
   },
   {
+    title: "Tasks",
+    url: "/tasks",
+    icon: ListChecks,
+  },
+  {
     title: "Leaves",
     url: "/leaves",
     icon: CalendarClock,
@@ -39,8 +44,8 @@ const Adminitems = [
     icon: Users,
   },
   {
-    title: "Tasks",
-    url: "/tasks",
+    title: "Assign Tasks",
+    url: "/assign_tasks",
     icon: ListChecks,
   },
   {

@@ -150,17 +150,36 @@ export interface AllLeavesDataProps {
   leavesData: leavesDataProps[]
 }
 
-export type TasksProps = {
-    id: string;
-    employee__id: string;
-    employee__name: string;
-    title:  string;
-    start_date: string;
-    end_date: string;
-    task_priority: "C" | "H" | "M" | "L";
-    description: string
+export interface Task {
+  id: string
+  employee__id?: string
+  employee__name?: string
+  title: string
+  start_date: string
+  end_date: string
+  task_priority: "C" | "H" | "M" | "L" | "" | string
+  status: "NS" | "IP" | "OH" | "CP" | "CN" | "" | string
+  description: string
 }
 
 export interface AllTasksProps {
-    tasksData: TasksProps[]
+  tasksData: Task[]
+  handleDeleteTask: (
+    taskid: number | string,
+    setOpenDeletedConfirmModel: React.Dispatch<React.SetStateAction<boolean>>
+  ) => Promise<void> | void
+  handleUpdateTask: (
+    task: Task,
+    setSelectedTask: React.Dispatch<React.SetStateAction<Task>>,
+    setOpenEditModel: React.Dispatch<React.SetStateAction<boolean>>
+  ) => Promise<void> | void
+}
+
+export interface CreateTaskPayload {
+  employee__id: string
+  title: string
+  start_date: string
+  end_date: string
+  task_priority: "C" | "H" | "M" | "L"
+  description: string
 }
