@@ -23,7 +23,7 @@ function Tasks() {
                 <div className="w-full flex items-center justify-between">
                     <h1 className="text-xl font-medium">Tasks</h1>
                 </div>
-                <TasksTable data={tasksData} />
+                <TasksTable data={tasksData} onRefresh={handleFetchTasks} />
             </div>
         </section>
     )

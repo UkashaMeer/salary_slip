@@ -14,10 +14,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { Dialog } from "@radix-ui/react-dialog"
-import { Button } from "@/components/ui/button"
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ArrowDown, ArrowUp } from "lucide-react"
 import { toast } from "sonner"
+import { fetchGetTasks } from "../api/get-tasks"
+import TimerCell, { formatTimeInSeconds } from "./TaskTimer"
 
 type Task = {
     id: number
@@ -28,6 +29,8 @@ type Task = {
     task_priority: "C" | "H" | "M" | "L"
     status: "NS" | "IP" | "OH" | "CP" | "CN" | "" | string
     description: string
+    total_time_hours: string
+    total_time_seconds: string | number
 }
 
 const PRIORITY_LABELS: Record<Task["task_priority"], string> = {
@@ -42,7 +45,6 @@ const STATUS_LABELS: Record<Task["status"], string> = {
     IP: "In Progress",
     OH: "On Hold",
     CP: "Completed",
-    CN: "Cancelled",
 }
 
 const priorityColors: Record<Task["task_priority"], string> = {
@@ -60,7 +62,7 @@ const statusColors: Record<Task["status"], string> = {
     CN: "bg-red-700",
 }
 
-export function TasksTable({ data }: { data: Task[] }) {
+export function TasksTable({ data, onRefresh }: { data: Task[], onRefresh: () => void }) {
     const [sorting, setSorting] = React.useState([])
     const [globalFilter, setGlobalFilter] = React.useState("")
 
@@ -98,7 +100,7 @@ export function TasksTable({ data }: { data: Task[] }) {
             accessorKey: "status",
             header: "Status",
             cell: ({ row }) => {
-                const [status, setStatus] = React.useState(row.original.status)
+                const [status, setStatus] = React.useState(row.original.status || "NS")
 
                 const handleUpdateTaskStatus = async (value: string) => {
 
@@ -114,8 +116,9 @@ export function TasksTable({ data }: { data: Task[] }) {
                         })
                     })
 
-                    if(res.ok){
+                    if (res.ok) {
                         toast.success("Task Status Updated Successfully.")
+                        onRefresh()
                     }
                 }
 
@@ -132,13 +135,15 @@ export function TasksTable({ data }: { data: Task[] }) {
                             >
                                 {STATUS_LABELS[status]}
                             </SelectTrigger>
-                            <SelectContent>
-                                {Object.entries(STATUS_LABELS).map(([key, label]) => (
+                            {status !== "CP" ? <SelectContent>
+                                {Object.entries(STATUS_LABELS).filter(([key]) => key !== "NS").map(([key, label]) => (
                                     <SelectItem key={key} value={key}>
                                         {label}
                                     </SelectItem>
                                 ))}
-                            </SelectContent>
+                            </SelectContent> : 
+                            <span></span>
+                            }
                         </Select>
 
                     </div>
@@ -148,24 +153,43 @@ export function TasksTable({ data }: { data: Task[] }) {
         {
             accessorKey: "description",
             header: "Description",
-            cell: ({row}) => {
+            cell: ({ row }) => {
 
-                const [openDescriptionModel, setOpenDescriptionModel] = React.useState(false) 
+                const [openDescriptionModel, setOpenDescriptionModel] = React.useState(false)
 
-                return(
+                return (
                     <>
-                    <Badge className="cursor-pointer py-[4px]" onClick={() => setOpenDescriptionModel(true)}>View Description</Badge>
-                    <Dialog open={openDescriptionModel} onOpenChange={setOpenDescriptionModel}>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>View Description</DialogTitle>
-                            </DialogHeader>
-                            {row.original.description}
-                        </DialogContent>
-                    </Dialog>
+                        <Badge className="cursor-pointer py-[4px]" onClick={() => setOpenDescriptionModel(true)}>View Description</Badge>
+                        <Dialog open={openDescriptionModel} onOpenChange={setOpenDescriptionModel}>
+                            <DialogContent>
+                                <DialogHeader>
+                                    <DialogTitle>View Description</DialogTitle>
+                                </DialogHeader>
+                                {row.original.description}
+                            </DialogContent>
+                        </Dialog>
                     </>
                 )
             }
+        },
+        {
+            accessorKey: "total_time_seconds",
+            header: "Total Working Hours",
+            cell: ({ row }) => {
+                const rawSeconds = row.original.total_time_seconds;
+                const parsedSeconds = rawSeconds ? Math.floor(Number(rawSeconds)) : 0;
+
+                return row.original.status == "CP" || row.original.status == "OH" ? (
+                    <h1>{formatTimeInSeconds(parsedSeconds)}</h1>
+                ) : (
+                    <TimerCell
+                        taskId={row.original.id}
+                        status={row.original.status}
+                        total_time_seconds={parsedSeconds}
+                    />
+                );
+            }
+
         },
     ]
 
@@ -204,8 +228,8 @@ export function TasksTable({ data }: { data: Task[] }) {
                                     >
                                         {flexRender(header.column.columnDef.header, header.getContext())}
                                         {{
-                                            asc: <ArrowUp size={14} className="ml-1 inline-block"  />,
-                                            desc: <ArrowDown size={14} className="ml-1 inline-block"  />,
+                                            asc: <ArrowUp size={14} className="ml-1 inline-block" />,
+                                            desc: <ArrowDown size={14} className="ml-1 inline-block" />,
                                         }[header.column.getIsSorted() as string] ?? null}
                                     </TableHead>
                                 ))}

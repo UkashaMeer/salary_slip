@@ -1,4 +1,6 @@
+import { formatTimeInSeconds } from "@/components/tasks/components/TaskTimer";
 import { AllTasksProps, Task } from "@/components/types";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -22,7 +24,8 @@ export default function AssignTasksTable({ tasksData, handleDeleteTask, handleUp
         end_date: "",
         task_priority: "",
         status: "",
-        description: ""
+        description: "",
+        total_time_seconds: ""
     })
     
     return (
@@ -37,6 +40,7 @@ export default function AssignTasksTable({ tasksData, handleDeleteTask, handleUp
                         <TableHead>End Date</TableHead>
                         <TableHead>Task Priority</TableHead>
                         <TableHead>Status</TableHead>
+                        <TableHead>Total Hours</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead></TableHead>
                     </TableRow>
@@ -45,23 +49,23 @@ export default function AssignTasksTable({ tasksData, handleDeleteTask, handleUp
                     {Array.isArray(tasksData) && tasksData.length > 0 ? (
                         tasksData.map((task, i) => (
                             <TableRow key={i} className="">
-                                <TableCell className="whitespace-normal break-words mx-auto">{task.employee__id}</TableCell>
-                                <TableCell className="whitespace-normal break-words mx-auto">{task.employee__name}</TableCell>
+                                <TableCell className="whitespace-normal break-words mx-auto">{task.employee_id}</TableCell>
+                                <TableCell className="whitespace-normal break-words mx-auto">{task.employee_name}</TableCell>
                                 <TableCell className="whitespace-normal break-words mx-auto">{task.title}</TableCell>
                                 <TableCell className="whitespace-normal break-words mx-auto">{new Date(task.start_date).toLocaleTimeString() + ' - ' + new Date(task.start_date).toLocaleDateString()}</TableCell>
                                 <TableCell className="whitespace-normal break-words mx-auto">{new Date(task.end_date).toLocaleTimeString() + ' - ' + new Date(task.end_date).toLocaleDateString()}</TableCell>
                                 <TableCell className={`whitespace-normal break-words mx-auto`}>
-                                    <span className={` ${task.task_priority == "C" ? "bg-red-500" : task.task_priority == "H" ? "bg-orange-500" : task.task_priority == "M" ? 'bg-blue-500' : task.task_priority ? "bg-green-500" : ""} px-2 py-1 rounded-sm text-white`}>
+                                    <Badge className={` ${task.task_priority == "C" ? "bg-red-500" : task.task_priority == "H" ? "bg-orange-500" : task.task_priority == "M" ? 'bg-blue-500' : task.task_priority ? "bg-green-500" : ""} px-2 py-1 rounded-sm text-white`}>
                                         {
                                             task.task_priority == "C" ? "Critical" :
                                                 task.task_priority == "H" ? "High" :
                                                     task.task_priority == "M" ? "Medium" :
                                                         task.task_priority == "L" ? "Low" : ""
                                         }
-                                    </span>
+                                    </Badge>
                                 </TableCell>
                                 <TableCell className={`whitespace-normal break-words mx-auto`}>
-                                    <span className={` ${task.status == "NS" ? "bg-neutral-500" : task.status == "IP" ? "bg-green-500" : task.status == "OH" ? 'bg-yellow-500' : task.status == "CP" ? "bg-green-500" : task.status == "CN" ? "bg-red-500" : ""} px-2 py-1 rounded-sm text-white`}>
+                                    <Badge className={` ${task.status == "NS" ? "bg-neutral-500" : task.status == "IP" ? "bg-green-500" : task.status == "OH" ? 'bg-yellow-500' : task.status == "CP" ? "bg-green-500" : task.status == "CN" ? "bg-red-500" : ""} px-2 py-1 rounded-sm text-white`}>
                                         {
                                             task.status == "NS" ? "Not Started" :
                                                 task.status == "IP" ? "In Progress" :
@@ -69,12 +73,21 @@ export default function AssignTasksTable({ tasksData, handleDeleteTask, handleUp
                                                         task.status == "CP" ? "Completed":
                                                             task.status == "CN" ? "Cancelled" : ""
                                         }
-                                    </span>
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    {
+                                        task.status == "OH" || task.status == "CP" ? (
+                                            <span>{formatTimeInSeconds(task.total_time_seconds)}</span>
+                                        ) : (
+                                            <span>-</span>
+                                        )
+                                    }
                                 </TableCell>
                                 <TableCell className="whitespace-normal break-words mx-auto">
                                     <Dialog>
                                         <DialogTrigger>
-                                            <Button className="bg-[#141D38] hover:bg-[#0f162e] px-2 py-0 rounded-sm leading-0 cursor-pointer">View Description</Button>
+                                            <Badge className="cursor-pointer py-[4px]">View Description</Badge>
                                         </DialogTrigger>
                                         <DialogContent>
                                             <DialogHeader>
@@ -102,6 +115,7 @@ export default function AssignTasksTable({ tasksData, handleDeleteTask, handleUp
                                                     task_priority: task.task_priority,
                                                     status: task.status,
                                                     description: task.description,
+                                                    total_time_seconds: task.total_time_seconds
                                                 })
                                             }}>
                                                 Edit
@@ -115,7 +129,8 @@ export default function AssignTasksTable({ tasksData, handleDeleteTask, handleUp
                                                     end_date: task.end_date,
                                                     task_priority: task.task_priority,
                                                     status: task.status,
-                                                    description: task.description
+                                                    description: task.description,
+                                                    total_time_seconds: task.total_time_seconds
                                                 })
                                             })}>
                                                 View

@@ -152,14 +152,15 @@ export interface AllLeavesDataProps {
 
 export interface Task {
   id: string
-  employee__id?: string
-  employee__name?: string
+  employee_id?: string
+  employee_name?: string
   title: string
   start_date: string
   end_date: string
   task_priority: "C" | "H" | "M" | "L" | "" | string
   status: "NS" | "IP" | "OH" | "CP" | "CN" | "" | string
   description: string
+  total_time_seconds: string | number
 }
 
 export interface AllTasksProps {
