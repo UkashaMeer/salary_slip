@@ -34,14 +34,14 @@ export default function TimerCell({
       const saved = localStorage.getItem(`task-timer-${taskId}`);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.startTime) {
+        if (parsed.startTime && parsed.resumeBase !== undefined) {
           const offset = Math.floor((Date.now() - parsed.startTime) / 1000);
-          setSeconds(baseSeconds + offset);
+          setSeconds(parsed.resumeBase + offset);
         }
       } else {
         localStorage.setItem(
           `task-timer-${taskId}`,
-          JSON.stringify({ startTime: Date.now() })
+          JSON.stringify({ startTime: Date.now(), resumeBase: baseSeconds })
         );
       }
     } else {
@@ -51,11 +51,15 @@ export default function TimerCell({
 
   useEffect(() => {
     if (status !== "IP") return;
+
     const interval = setInterval(() => {
       setSeconds((prev) => prev + 1);
     }, 1000);
+
     return () => clearInterval(interval);
   }, [status]);
+
+  console.log(seconds)
 
   return <span>{formatTimeInSeconds(seconds)}</span>;
 }
